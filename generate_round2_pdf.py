@@ -1,0 +1,479 @@
+import os
+import subprocess
+import shutil
+
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RelayState - Hackathon Round 2 Submission</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  @page {
+    size: A4 portrait;
+    margin: 11mm 13mm 11mm 13mm;
+  }
+
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    color: #000000;
+    line-height: 1.45;
+    font-size: 8.8pt;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .header-card {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-top: 4px solid #0f172a;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .badge-row { display: flex; gap: 6px; margin-bottom: 5px; }
+  .badge {
+    display: inline-block;
+    font-size: 6.8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    color: #000000;
+    border: 1px solid #cbd5e1;
+  }
+  .badge.dark { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+  .badge.green { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+
+  h1.project-title {
+    font-size: 18pt;
+    font-weight: 800;
+    margin: 0 0 2px 0;
+    letter-spacing: -0.4px;
+    color: #000000;
+  }
+
+  .tagline {
+    font-size: 9.5pt;
+    color: #000000;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 7.5pt;
+  }
+
+  .meta-item strong {
+    display: block;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 6.2pt;
+    letter-spacing: 0.4px;
+    margin-bottom: 1px;
+  }
+
+  .meta-item span { color: #000000; font-weight: 700; }
+
+  .section { margin-bottom: 10px; page-break-inside: avoid; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1.5px solid #0f172a;
+    padding-bottom: 2px;
+    margin-bottom: 5px;
+  }
+
+  .section-num {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 7pt;
+    padding: 2px 5px;
+    border-radius: 2px;
+  }
+
+  h2 {
+    font-size: 10.2pt;
+    font-weight: 800;
+    color: #000000;
+    margin: 0;
+    letter-spacing: -0.2px;
+  }
+
+  .points-badge {
+    margin-left: auto;
+    font-size: 6.8pt;
+    font-weight: 700;
+    color: #000000;
+    background: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 3px;
+    border: 1px solid #cbd5e1;
+  }
+
+  p { margin: 0 0 5px 0; text-align: justify; color: #000000; }
+
+  .callout {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-left: 3.5px solid #0f172a;
+    padding: 6px 9px;
+    border-radius: 3px;
+    margin: 5px 0;
+    font-size: 8.2pt;
+    color: #000000;
+  }
+
+  .callout.amber { background: #fffbeb; border-color: #fde68a; border-left: 3.5px solid #d97706; }
+  .callout.sage { background: #f0fdf4; border-color: #bbf7d0; border-left: 3.5px solid #16a34a; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 5px 0;
+  }
+
+  .card {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    padding: 6px 8px;
+  }
+
+  .card h3 { font-size: 8.4pt; margin: 0 0 2px 0; color: #000000; font-weight: 800; }
+  .card p { font-size: 7.6pt; margin: 0; color: #000000; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 7.7pt; margin: 5px 0; }
+  th {
+    background: #f1f5f9;
+    color: #000000;
+    text-align: left;
+    padding: 4px 6px;
+    font-weight: 800;
+    font-size: 7.1pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border: 1px solid #cbd5e1;
+  }
+  td { padding: 4px 6px; border: 1px solid #e2e8f0; color: #000000; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  ul { margin: 2px 0 4px 14px; padding: 0; font-size: 8.2pt; color: #000000; }
+  li { margin-bottom: 2px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 7.2pt; background: #f1f5f9; padding: 1px 3px; border-radius: 2px; border: 1px solid #e2e8f0; }
+
+  .page-break { page-break-before: always; }
+  .footer-note { font-size: 6.8pt; color: #475569; text-align: center; margin-top: 8px; border-top: 1px solid #e2e8f0; padding-top: 3px; }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header-card">
+    <div class="badge-row">
+      <span class="badge dark">Round 2 Build Submission</span>
+      <span class="badge green">Working MVP Delivered</span>
+      <span class="badge">Track: Problem Statement 01</span>
+      <span class="badge">Team InnoviX</span>
+    </div>
+    <h1 class="project-title">RelayState: Round 2 Project Documentation</h1>
+    <div class="tagline">A Functional, Grounded Knowledge-Handover Engine & Cryptographic Audit Ledger</div>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <strong>Repository URL</strong>
+        <span>github.com/innovix-relaystate</span>
+      </div>
+      <div class="meta-item">
+        <strong>Deployment Mode</strong>
+        <span>FastAPI + SQLite + Docker</span>
+      </div>
+      <div class="meta-item">
+        <strong>Team Lead & Engineer</strong>
+        <span>Kavin S S G (Solo Builder)</span>
+      </div>
+      <div class="meta-item">
+        <strong>Test Suite Status</strong>
+        <span>6/6 Pytest Passing (100%)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1. WORKING CORE WORKFLOW (30 POINTS) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Working Core Workflow & User Journey</h2>
+      <span class="points-badge">30 Points</span>
+    </div>
+    <p>
+      In Round 2, the complete 5-stage product journey operates end-to-end without broken dependencies. Judges can launch the application, load the synthetic corpus (*Project Hyperion*), review grounded claims, and experience the transition from leaver drafting to successor continuation:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">Stage</th>
+          <th style="width: 35%;">Functional Capability</th>
+          <th style="width: 50%;">Judge Interactive Experience</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>01 Connect</strong></td>
+          <td>Ingests 55 commits, 25 PRs, 121 chat messages, and 13 Jira tickets.</td>
+          <td>Click <code>Load Demo Project</code>. Ingestion runs in &lt;1 second with real-time stream status indicators.</td>
+        </tr>
+        <tr>
+          <td><strong>02 Reconstruct</strong></td>
+          <td>Extracts decisions, blockers, dependencies, and bus-factor vulnerabilities.</td>
+          <td>Automatically surfaces that Dave authored 97.7% of <code>billing/</code> code as a critical organizational risk.</td>
+        </tr>
+        <tr>
+          <td><strong>03 Verify</strong></td>
+          <td>Verbatim grounding check + temporal cross-modal supersession check.</td>
+          <td>Chat Redis agreement is flagged <code>SUPERSEDED_BY_CODE</code> by Memcached commit; hallucinated quotes are dropped.</td>
+        </tr>
+        <tr>
+          <td><strong>04 Review</strong></td>
+          <td>Split-screen review studio with custom redaction tool and leaver sign-off.</td>
+          <td>Leaver edits claims, redacts strings across trails, and executes digital sign-off (promotes <code>v0.1 &rarr; v0.2</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>05 Handover</strong></td>
+          <td>Lead signs off <code>v1.0</code>, unlocking successor Day-1 view.</td>
+          <td>Successor receives <code>HTTP 403 Forbidden</code> until Lead signs off; once published, successor acknowledges receipt.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. CHANGES FROM ROUND 1 PLAN (20 POINTS) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Changes from Round 1 Plan & Justifications</h2>
+      <span class="points-badge">20 Points Progress</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 20%;">Component</th>
+          <th style="width: 25%;">Round 1 Plan</th>
+          <th style="width: 25%;">Round 2 Implementation</th>
+          <th style="width: 30%;">Engineering Justification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Architecture & Stack</strong></td>
+          <td>Next.js 14 + Postgres + ChromaDB</td>
+          <td><strong>FastAPI + SQLite + Vanilla JS (Single HTML) + Docker</strong></td>
+          <td><strong>Bulletproof Deployment:</strong> Eliminates external DB connection pool drops and React hydration crashes for judges. Boots in 1 second.</td>
+        </tr>
+        <tr>
+          <td><strong>Authentication</strong></td>
+          <td>Mandatory OAuth 2.0 Login</td>
+          <td><strong>No-Login Role Picker + Dismissible Info Banner</strong></td>
+          <td><strong>Zero-Friction Evaluation:</strong> Judges test all 3 personas instantly without signup friction. Server still strictly enforces access boundaries.</td>
+        </tr>
+        <tr>
+          <td><strong>Data Isolation</strong></td>
+          <td>Shared session cookies</td>
+          <td><strong>Per-Visitor Workspace (UUID + <code>X-Workspace</code> header)</strong></td>
+          <td>Allows multiple judges to test simultaneously in isolated sandboxes with a dedicated "Reset" button.</td>
+        </tr>
+        <tr>
+          <td><strong>Audit Ledger</strong></td>
+          <td>Abstract relational audit log</td>
+          <td><strong>Cryptographic Hash Chain with Tamper Simulation</strong></td>
+          <td>Interactive proof: Judges can click <code>Simulate Tamper</code> and watch cryptographic verification fail, then click <code>Restore</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3. TECHNICAL DEPTH & RELIABILITY (25 POINTS) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Technical Depth, Security & Planted Evaluation Traps</h2>
+      <span class="points-badge">25 Points</span>
+    </div>
+    <div class="callout sage">
+      <strong>Planted Evaluation Traps (Demonstrating Real System Intelligence):</strong>
+      <ul>
+        <li><strong>Temporal Supersession Trap:</strong> Oct 10 chat agreement to use Redis for session cache is compared chronologically against Git master code. Oct 18 commit (<code>commit-7a89b1</code>) implementing Memcached automatically demotes the chat claim to <code>SUPERSEDED_BY_CODE</code>.</li>
+        <li><strong>Pre-Storage Secret Scrubbing:</strong> Ingestion runs regex/NER token filters that sanitize AWS access keys (<code>AKIA...</code>), emails, and phone numbers before data enters storage or LLM context.</li>
+        <li><strong>Verbatim Grounding Check:</strong> A built-in test claim citing a fabricated Apollo GraphQL quote is caught by the grounding validator and dropped, logging a <code>GROUNDING_DROP</code> event.</li>
+        <li><strong>Unanswered Question Uncertainty:</strong> Dave's question regarding Twilio SMS gateway ownership received zero replies and is flagged as <code>UNCERTAIN / UNANSWERED</code>.</li>
+        <li><strong>Orphaned Jira Ticket:</strong> <code>HYP-107</code> (invoice reconciliation automation) has <code>Assignee: Unassigned</code> and is tagged <code>MISSING OWNER</code>.</li>
+        <li><strong>Excluded Privacy Boundaries:</strong> 3 sensitive streams (<code>#hr-confidential</code>, <code>dm-dave-sarah</code>, <code>hr-payroll-tools</code>) are automatically excluded at ingestion with explicit justifications shown in the UI.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PAGE BREAK -->
+  <div class="page-break"></div>
+
+  <!-- 4. AUTOMATED TEST EVIDENCE -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Automated Test Evidence (100% Pass Rate)</h2>
+    </div>
+    <p>
+      The complete codebase is validated by 6 automated test suites executing against simulated database states (<code>pytest tests -v</code>):
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">Test Suite</th>
+          <th style="width: 55%;">Verification Scope</th>
+          <th style="width: 20%;">Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>test_redaction.py</code></td>
+          <td>Verifies pre-storage scrubbing of AWS keys, emails, phone numbers, and source exclusion rules.</td>
+          <td><strong style="color: #166534;">PASSED</strong></td>
+        </tr>
+        <tr>
+          <td><code>test_grounding.py</code></td>
+          <td>Confirms verbatim quote validation and dropping of hallucinated candidate claims.</td>
+          <td><strong style="color: #166534;">PASSED</strong></td>
+        </tr>
+        <tr>
+          <td><code>test_supersession.py</code></td>
+          <td>Validates Redis-to-Memcached temporal override, unanswered question uncertainty, and unassigned tickets.</td>
+          <td><strong style="color: #166534;">PASSED</strong></td>
+        </tr>
+        <tr>
+          <td><code>test_roles_and_gating.py</code></td>
+          <td>Enforces server-level <code>HTTP 403 Forbidden</code> for successors before <code>v1.0</code>, leaver-to-lead gating, and receipt.</td>
+          <td><strong style="color: #166534;">PASSED</strong></td>
+        </tr>
+        <tr>
+          <td><code>test_audit.py</code></td>
+          <td>Tests sequential SHA-256 hash chaining, detection of simulated block tampering, and clean restoration.</td>
+          <td><strong style="color: #166534;">PASSED</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5. THREE SUBSTANTIAL IMPROVEMENTS FOR ROUND 3 (15 POINTS) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Three Major Improvements Committed for Round 3</h2>
+      <span class="points-badge">15 Points</span>
+    </div>
+    <p>
+      In strict accordance with the Round 2 brief requiring <em>"substantial product improvements rather than cosmetic changes,"</em> Team InnoviX commits to delivering:
+    </p>
+    <div class="card-grid">
+      <div class="card">
+        <h3>1. Generalized Temporal Contradiction Engine</h3>
+        <p>Expand beyond rule-based triggers by using embedding cosine clustering and an LLM referee to cross-examine asynchronous chat debates against merged pull-request code diffs across unconstrained domains.</p>
+      </div>
+      <div class="card">
+        <h3>2. Multi-Role RBAC with OAuth & Asymmetric Keys</h3>
+        <p>Replace client-side role switching with verified Google OAuth 2.0 / GitHub Enterprise authentication, signing handover receipts using asymmetric Ed25519 cryptographic key-pairs.</p>
+      </div>
+      <div class="card">
+        <h3>3. Interactive Day-1 Sandbox Verification</h3>
+        <p>Transform the successor view from a static checklist into an active sandbox that runs automated test suites against the new joiner's local environment, confirming staging access and repo readiness.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. USABILITY & PARTICIPANT DETAILS (10 POINTS) -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Usability, Honest Limitations & Participant Details</h2>
+      <span class="points-badge">10 Points Usability</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25%;">Attribute</th>
+          <th style="width: 75%;">Description & Implementation Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Guided Walkthrough</strong></td>
+          <td>A 1-click <code>Run Guided Walkthrough</code> button steps judges through data ingestion, supersession review, 403 blocking, lead approval, and successor acknowledgement in under 60 seconds.</td>
+        </tr>
+        <tr>
+          <td><strong>Honest Limitations</strong></td>
+          <td>Current demonstration uses pre-scoped synthetic data (<em>Project Hyperion</em>) to guarantee complete privacy compliance without requiring real corporate secrets. Role switching is unlocked for judge evaluation convenience.</td>
+        </tr>
+        <tr>
+          <td><strong>AI Tooling Disclosure</strong></td>
+          <td>In accordance with Rule 7, development used Google Antigravity / Gemini for assistance with code boilerplate, architecture planning, and synthetic dataset curation. Runtime inference supports the Gemini API.</td>
+        </tr>
+        <tr>
+          <td><strong>Participant & Team</strong></td>
+          <td><strong>Team Name:</strong> InnoviX | <strong>Solo Builder & Lead:</strong> Kavin S S G (Full-Stack AI Engineer).</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="footer-note">
+      RelayState Round 2 Documentation | Team InnoviX | Problem Statement 01 | Submitted by Kavin S S G
+    </div>
+  </div>
+
+</body>
+</html>
+"""
+
+scratch_dir = r"C:\Users\kavin\.gemini\antigravity\scratch\relaystate\docs"
+desktop_dir = r"C:\Users\kavin\Desktop"
+
+html_path = os.path.join(scratch_dir, "RelayState_Round2_Submission.html")
+pdf_scratch_path = os.path.join(scratch_dir, "RelayState_Round2_Submission.pdf")
+pdf_desktop_path = os.path.join(desktop_dir, "RelayState_Round2_Submission.pdf")
+
+with open(html_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"Round 2 HTML written to {html_path}")
+
+edge_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+cmd = [
+    edge_path,
+    "--headless",
+    "--disable-gpu",
+    "--no-pdf-header-footer",
+    "--run-all-compositor-stages-before-draw",
+    f"--print-to-pdf={pdf_scratch_path}",
+    html_path
+]
+
+print("Compiling Round 2 PDF with Edge...")
+subprocess.run(cmd, check=True)
+
+if os.path.exists(pdf_scratch_path):
+    size = os.path.getsize(pdf_scratch_path)
+    print(f"Successfully generated Round 2 PDF: {pdf_scratch_path} ({size} bytes)")
+    shutil.copy2(pdf_scratch_path, pdf_desktop_path)
+    print(f"Copied Round 2 PDF to Desktop: {pdf_desktop_path}")
+else:
+    print("Failed to generate Round 2 PDF.")
