@@ -1,0 +1,14 @@
+name: Keep-Alive Ping
+
+on:
+  schedule:
+    # Pings every 10 minutes from GitHub cloud servers
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Healthz
+        run: curl -fsS https://relaystate-innovix.onrender.com/healthz || true
