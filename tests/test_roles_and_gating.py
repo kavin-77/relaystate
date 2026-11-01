@@ -57,3 +57,13 @@ def test_successor_403_and_signoff_gating():
     ack_res = client.post("/api/successor/acknowledge", headers=headers_successor)
     assert ack_res.status_code == 200
     assert ack_res.json()["status"] == "acknowledged"
+
+def test_empty_workspace_signoff_gating():
+    ws = "test_empty_gating_ws"
+    reset_workspace_db(ws)
+    headers_leaver = {"X-Workspace": ws, "X-Role": "leaver"}
+    
+    # Attempting leaver signoff on an empty workspace without ingested/extracted claims must fail
+    res = client.post("/api/signoff/leaver", headers=headers_leaver, json={"notes": "premature signoff"})
+    assert res.status_code == 400
+    assert "Cannot sign off an empty handover" in res.json()["detail"]

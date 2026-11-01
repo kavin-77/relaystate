@@ -274,6 +274,18 @@ def leaver_signoff(
     if x_role != "leaver":
         raise HTTPException(status_code=403, detail="Only the departing leaver can perform the leaver sign-off.")
         
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) as c FROM claims WHERE workspace_id = ?", (workspace_id,))
+    row = cursor.fetchone()
+    claims_count = row["c"] if row else 0
+    if claims_count == 0:
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot sign off an empty handover. Ingest and extract project activity first."
+        )
+
     now = datetime.now(timezone.utc).isoformat()
     # Record audit event
     audit_res = record_audit_event(
@@ -281,8 +293,6 @@ def leaver_signoff(
         {"version_from": "v0.1", "version_to": "v0.2", "notes": req.notes}
     )
     
-    conn = get_connection()
-    cursor = conn.cursor()
     cursor.execute("""
     UPDATE workspaces
     SET version = 'v0.2', leaver_signed_at = ?, leaver_signoff_hash = ?

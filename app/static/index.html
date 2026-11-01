@@ -694,7 +694,7 @@
 
     <!-- SHORT DISMISSIBLE NOTICE -->
     <div id="infoBanner" class="notice-banner">
-      <span><strong>Demo Mode:</strong> Roles are selectable from the menu to test the workflow without sign-in. Access rules are enforced by the server.</span>
+      <span><strong>Demo Mode:</strong> All data is synthetic (no real secrets or personal data). Roles are selectable from the menu to test the workflow without sign-in; access rules are enforced by the server.</span>
       <button onclick="document.getElementById('infoBanner').style.display='none'">&times;</button>
     </div>
 
@@ -781,7 +781,7 @@
           <div>
             <div class="doc-title">Project Handover Document</div>
             <div class="doc-meta" id="extractionSubtext">
-              Project Hyperion &bull; Author: Dave (Senior Developer) &bull; Verified via source grounding
+              Project Hyperion &bull; Author: Dave (Senior Developer) &bull; Awaiting data ingestion
             </div>
           </div>
           <div id="reviewActionButtons" style="display: flex; gap: 8px;">
@@ -902,6 +902,8 @@
 
 <script>
   let hasLoadedData = false;
+  let currentClaims = [];
+  let lastWorkspaceState = null;
 
   function getWorkspaceId() {
     let ws = localStorage.getItem('relaystate_ws_id');
@@ -1004,6 +1006,7 @@
   async function loadWorkspaceState() {
     const res = await fetch('/api/workspace/state', { headers: getHeaders() });
     const data = await res.json();
+    lastWorkspaceState = data;
     const badge = document.getElementById('versionBadge');
     badge.innerText = data.version;
 
@@ -1012,6 +1015,13 @@
       document.getElementById('firstRunHero').style.display = 'none';
       document.getElementById('mainDocNav').style.display = 'flex';
       document.getElementById('manualRedactBar').style.display = 'flex';
+      document.getElementById('extractionSubtext').innerHTML = `Project Hyperion &bull; Author: Dave (Senior Developer) &bull; ${data.claims_count} claims &bull; Verified via source grounding`;
+    } else {
+      hasLoadedData = false;
+      document.getElementById('firstRunHero').style.display = 'block';
+      document.getElementById('mainDocNav').style.display = 'none';
+      document.getElementById('manualRedactBar').style.display = 'none';
+      document.getElementById('extractionSubtext').innerHTML = `Project Hyperion &bull; Author: Dave (Senior Developer) &bull; Awaiting data ingestion`;
     }
 
     updateStepperProgress(data);
@@ -1019,16 +1029,37 @@
   }
 
   function updateActionButtons(state) {
+    if (!state) state = lastWorkspaceState;
+    if (!state) return;
     const container = document.getElementById('reviewActionButtons');
     const role = document.getElementById('roleSelect').value;
     container.innerHTML = '';
 
     if (role === 'leaver' && state.version === 'v0.1') {
-      container.innerHTML = `
-        <button class="btn-main" onclick="leaverSignoff()">
-          Sign off as Leaver (v0.2) &rarr;
-        </button>
-      `;
+      // Hide button before demo project is loaded
+      if (!hasLoadedData || currentClaims.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      const unreviewed = currentClaims.filter(c => !c.approved && !c.rejected);
+      if (unreviewed.length > 0) {
+        container.innerHTML = `
+          <div style="display: inline-flex; align-items: center; gap: 8px;">
+            <button class="btn-secondary" style="font-size: 11.5px; padding: 5px 9px;" onclick="approveAllClaims()">
+              ✓ Quick review: Approve all
+            </button>
+            <button class="btn-main" disabled style="opacity: 0.55; cursor: not-allowed;" title="Please review (approve or reject) all claims before signing off">
+              Sign off as Leaver (v0.2) &bull; ${unreviewed.length} unreviewed
+            </button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <button class="btn-main" onclick="leaverSignoff()">
+            Sign off as Leaver (v0.2) &rarr;
+          </button>
+        `;
+      }
     } else if (role === 'lead' && state.version === 'v0.2') {
       container.innerHTML = `
         <button class="btn-main" style="background: #15803d; border-color: #15803d;" onclick="leadSignoff()">
@@ -1036,6 +1067,20 @@
         </button>
       `;
     }
+  }
+
+  async function approveAllClaims() {
+    for (const claim of currentClaims) {
+      if (!claim.approved && !claim.rejected) {
+        await fetch(`/api/claims/${claim.id}/review`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ approved: true, rejected: false })
+        });
+      }
+    }
+    await loadClaims();
+    await loadWorkspaceState();
   }
 
   async function loadDemoData() {
@@ -1077,6 +1122,8 @@
     if (res.status === 403) return;
 
     const data = await res.json();
+    currentClaims = data.claims || [];
+    updateActionButtons(lastWorkspaceState);
     const container = document.getElementById('claimsList');
 
     if (!data.claims || data.claims.length === 0) {
@@ -1196,7 +1243,8 @@
       headers: getHeaders(),
       body: JSON.stringify(payload)
     });
-    loadClaims();
+    await loadClaims();
+    await loadWorkspaceState();
   }
 
   async function editClaimSummary(claimId, currentSummary) {
@@ -1225,9 +1273,14 @@
   }
 
   async function leaverSignoff() {
-    await fetch('/api/signoff/leaver', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ notes: "Leaver Dave reviewed and approved claims." }) });
+    const res = await fetch('/api/signoff/leaver', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ notes: "Leaver Dave reviewed and approved claims." }) });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.detail || "Sign-off failed. Ensure project data is loaded.");
+      return;
+    }
     alert("Leaver sign-off recorded! Version promoted to v0.2.");
-    loadWorkspaceState();
+    await loadWorkspaceState();
   }
 
   async function leadSignoff() {
@@ -1426,6 +1479,7 @@
     alert("Step 4: Successor gets HTTP 403 Forbidden! The draft is not approved yet. Let's sign off as Leaver (v0.2) and Lead (v1.0)...");
     document.getElementById('roleSelect').value = 'leaver';
     onRoleChange();
+    await approveAllClaims();
     await leaverSignoff();
     document.getElementById('roleSelect').value = 'lead';
     onRoleChange();
