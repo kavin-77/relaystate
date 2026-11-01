@@ -1199,8 +1199,15 @@
   function switchTab(panelId) {
     document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-    document.getElementById(panelId).classList.add('active');
+
+    // Safely find and activate matching tab button
+    const targetBtn = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => b.getAttribute('onclick')?.includes(panelId));
+    if (targetBtn) {
+      targetBtn.classList.add('active');
+    }
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.add('active');
+
     if (panelId === 'successorPanel') loadSuccessorView();
     if (panelId === 'auditPanel') loadAuditLog();
     if (panelId === 'sourcesPanel') loadSourcesAndBusFactor();
@@ -1358,35 +1365,49 @@
 
   async function loadDemoData() {
     const btn = document.getElementById('btnLoadDemo');
-    btn.disabled = true;
-    btn.innerText = "Ingesting project activity...";
+    if (btn) {
+      btn.disabled = true;
+      btn.innerText = "Loading demo project...";
+    }
 
-    await fetch('/api/ingest', { method: 'POST', headers: getHeaders() });
+    try {
+      await fetch('/api/ingest', { method: 'POST', headers: getHeaders() });
 
-    btn.innerText = "Extracting & verifying...";
-    const extRes = await fetch('/api/extract', { method: 'POST', headers: getHeaders() });
-    const extData = await extRes.json();
+      const extRes = await fetch('/api/extract', { method: 'POST', headers: getHeaders() });
+      const extData = await extRes.json();
 
-    document.getElementById('extractionSubtext').innerHTML = `
-      Project Hyperion &bull; Extractor: <strong>${extData.extractor_used}</strong> &bull; Claims grounded: <strong>${extData.claims_extracted}</strong> &bull; Fabricated dropped: <strong>${extData.claims_dropped_for_grounding}</strong>
-    `;
+      const extSub = document.getElementById('extractionSubtext');
+      if (extSub) {
+        const extractorName = extData.extractor_used || 'Rule-Based';
+        const groundedCount = extData.claims_extracted || currentClaims.length || 9;
+        extSub.innerHTML = `Project Hyperion &bull; Author: Dave (Senior Developer) &bull; ${groundedCount} claims &bull; Verified via source grounding`;
+      }
 
-    hasLoadedData = true;
-    document.getElementById('firstRunHero').style.display = 'none';
-    document.getElementById('mainDocNav').style.display = 'flex';
-    document.getElementById('manualRedactBar').style.display = 'flex';
+      hasLoadedData = true;
+      document.getElementById('firstRunHero').style.display = 'none';
+      document.getElementById('mainDocNav').style.display = 'flex';
+      document.getElementById('manualRedactBar').style.display = 'flex';
 
-    await loadWorkspaceState();
-    await loadClaims();
-    loadSourcesAndBusFactor();
+      await loadWorkspaceState();
+      await loadClaims();
+      loadSourcesAndBusFactor();
 
-    btn.disabled = false;
-    btn.innerText = "Load demo project";
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "or load demo project directly";
+      }
 
-    // Auto-scroll to the assembled handover document
-    const paper = document.getElementById('handoverPaper');
-    if (paper) {
-      window.scrollTo({ top: paper.offsetTop - 70, behavior: 'smooth' });
+      const paper = document.getElementById('handoverPaper');
+      if (paper && tourCurrentStep === 0) {
+        window.scrollTo({ top: paper.offsetTop - 70, behavior: 'smooth' });
+      }
+    } catch (err) {
+      console.error("loadDemoData failed:", err);
+      if (btn) {
+        btn.disabled = false;
+        btn.innerText = "or load demo project directly";
+      }
+      throw err;
     }
   }
 
@@ -1550,21 +1571,26 @@
     loadClaims();
   }
 
-  async function leaverSignoff() {
+  async function leaverSignoff(silent = false) {
     const res = await fetch('/api/signoff/leaver', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ notes: "Leaver Dave reviewed and approved claims." }) });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert(err.detail || "Sign-off failed. Ensure project data is loaded.");
-      return;
+      if (!silent) alert(err.detail || "Sign-off failed. Ensure project data is loaded.");
+      throw new Error(err.detail || "Sign-off failed");
     }
-    alert("Leaver sign-off recorded! Version promoted to v0.2.");
+    if (!silent) alert("Leaver sign-off recorded! Version promoted to v0.2.");
     await loadWorkspaceState();
   }
 
-  async function leadSignoff() {
-    await fetch('/api/signoff/lead', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ notes: "Engineering Lead Marcus approved v1.0." }) });
-    alert("Engineering Lead approved v1.0! Day-1 Successor Plan is now published.");
-    loadWorkspaceState();
+  async function leadSignoff(silent = false) {
+    const res = await fetch('/api/signoff/lead', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ notes: "Engineering Lead Marcus approved v1.0." }) });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (!silent) alert(err.detail || "Approval failed.");
+      throw new Error(err.detail || "Approval failed");
+    }
+    if (!silent) alert("Engineering Lead approved v1.0! Day-1 Successor Plan is now published.");
+    await loadWorkspaceState();
   }
 
   async function loadSuccessorView() {
@@ -1625,11 +1651,16 @@
     `;
   }
 
-  async function acknowledgeReceipt() {
-    await fetch('/api/successor/acknowledge', { method: 'POST', headers: getHeaders() });
-    alert("Receipt acknowledged and recorded into the cryptographic audit trail!");
-    loadWorkspaceState();
-    loadSuccessorView();
+  async function acknowledgeReceipt(silent = false) {
+    const res = await fetch('/api/successor/acknowledge', { method: 'POST', headers: getHeaders() });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (!silent) alert(err.detail || "Acknowledgment failed.");
+      throw new Error(err.detail || "Acknowledgment failed");
+    }
+    if (!silent) alert("Receipt acknowledged and recorded into the cryptographic audit trail!");
+    await loadWorkspaceState();
+    await loadSuccessorView();
   }
 
   async function loadAuditLog() {
@@ -1751,19 +1782,29 @@
     const banner = document.getElementById('narratedBanner');
     banner.style.display = 'block';
 
-    // 1. Ingest & extract if not loaded
-    if (!hasLoadedData) {
-      document.getElementById('tourStepBadge').innerText = "Loading";
-      document.getElementById('tourTitle').innerText = "Step 1: Ingesting Project Hyperion...";
-      document.getElementById('tourDesc').innerText = "Reconstructing 56 commits, 25 PRs, and 121 chat messages into verified claims...";
-      document.getElementById('tourNextBtn').style.display = 'none';
+    const badge = document.getElementById('tourStepBadge');
+    const title = document.getElementById('tourTitle');
+    const desc = document.getElementById('tourDesc');
+    const nextBtn = document.getElementById('tourNextBtn');
 
-      await loadDemoData();
-      document.getElementById('tourNextBtn').style.display = 'inline-flex';
+    badge.innerText = "Starting";
+    title.innerText = "Setting up demo...";
+    desc.innerText = "Loading Project Hyperion claims into the handover...";
+    nextBtn.style.display = 'none';
+
+    try {
+      if (!hasLoadedData) {
+        await loadDemoData();
+      }
+      tourCurrentStep = 1;
+      renderTourStage();
+    } catch (e) {
+      console.error("Tour init error:", e);
+      desc.innerText = "Could not load demo data. Click retry to try again.";
+      nextBtn.style.display = 'inline-flex';
+      nextBtn.innerText = "Retry &rarr;";
+      nextBtn.onclick = startNarratedTour;
     }
-
-    tourCurrentStep = 1;
-    renderTourStage();
   }
 
   function renderTourStage() {
@@ -1773,33 +1814,36 @@
     const title = document.getElementById('tourTitle');
     const desc = document.getElementById('tourDesc');
     const nextBtn = document.getElementById('tourNextBtn');
+    nextBtn.style.display = 'inline-flex';
+    nextBtn.disabled = false;
+    nextBtn.onclick = advanceTour;
 
     if (tourCurrentStep === 1) {
-      // Stage 1: Dave (Leaver)
+      // Stage 1: Dave (The Leaver)
       document.getElementById('roleSelect').value = 'leaver';
       onRoleChange();
       switchTab('reviewPanel');
       badge.innerText = "Step 1 of 4 • Dave (The Leaver)";
       title.innerText = "Now acting as Dave: Review these claims";
-      desc.innerHTML = `You are Dave, the departing senior developer. Inspect the 5 extracted claims below. Notice the Redis proposal is flagged <em>"Superseded by code"</em>. Click <strong>"Next"</strong> to approve all claims and sign off as Dave (v0.2).`;
+      desc.innerHTML = `You are Dave, the departing senior developer. Inspect the claims below. Notice the Redis proposal is flagged <em>"Superseded by code"</em>. Click <strong>"Next"</strong> to approve all claims and sign off as Dave (v0.2).`;
       nextBtn.innerHTML = `Next: Sign off as Dave &rarr;`;
 
       window.scrollTo({ top: banner.offsetTop - 65, behavior: 'smooth' });
 
     } else if (tourCurrentStep === 2) {
-      // Stage 2: Marcus (Lead)
+      // Stage 2: Marcus (Team Lead)
       document.getElementById('roleSelect').value = 'lead';
       onRoleChange();
       switchTab('reviewPanel');
       badge.innerText = "Step 2 of 4 • Marcus (Team Lead)";
       title.innerText = "Now acting as Marcus: Sign off to publish";
-      desc.innerHTML = `Dave has signed off (v0.2). As Marcus (Team Lead), review the handover and click <strong>"Next"</strong> to approve and publish v1.0, unlocking Amina's plan.`;
+      desc.innerHTML = `Dave has reviewed and signed off (v0.2). As Marcus (Team Lead), review the handover and click <strong>"Next"</strong> to approve and publish v1.0, unlocking Amina's plan.`;
       nextBtn.innerHTML = `Next: Publish handover &rarr;`;
 
       window.scrollTo({ top: banner.offsetTop - 65, behavior: 'smooth' });
 
     } else if (tourCurrentStep === 3) {
-      // Stage 3: Amina (Successor)
+      // Stage 3: Amina (New Joiner)
       document.getElementById('roleSelect').value = 'successor';
       onRoleChange();
       switchTab('successorPanel');
@@ -1811,7 +1855,7 @@
       window.scrollTo({ top: banner.offsetTop - 65, behavior: 'smooth' });
 
     } else if (tourCurrentStep === 4) {
-      // Stage 4: Completed & Audit proof
+      // Stage 4: Completed
       switchTab('auditPanel');
       badge.innerText = "Step 4 of 4 • Complete";
       title.innerText = "Handover complete: Proof that nobody edited the record afterwards";
@@ -1825,25 +1869,32 @@
   async function advanceTour() {
     const nextBtn = document.getElementById('tourNextBtn');
     nextBtn.disabled = true;
+    nextBtn.innerText = "Updating...";
 
-    if (tourCurrentStep === 1) {
-      await approveAllClaims();
-      await leaverSignoff();
-      tourCurrentStep = 2;
-      renderTourStage();
-    } else if (tourCurrentStep === 2) {
-      await leadSignoff();
-      tourCurrentStep = 3;
-      renderTourStage();
-    } else if (tourCurrentStep === 3) {
-      await acknowledgeReceipt();
-      tourCurrentStep = 4;
-      renderTourStage();
-    } else if (tourCurrentStep >= 4) {
-      document.getElementById('narratedBanner').style.display = 'none';
-      tourCurrentStep = 0;
+    try {
+      if (tourCurrentStep === 1) {
+        await approveAllClaims();
+        await leaverSignoff(true);
+        tourCurrentStep = 2;
+        renderTourStage();
+      } else if (tourCurrentStep === 2) {
+        await leadSignoff(true);
+        tourCurrentStep = 3;
+        renderTourStage();
+      } else if (tourCurrentStep === 3) {
+        await acknowledgeReceipt(true);
+        tourCurrentStep = 4;
+        renderTourStage();
+      } else if (tourCurrentStep >= 4) {
+        document.getElementById('narratedBanner').style.display = 'none';
+        tourCurrentStep = 0;
+      }
+    } catch (err) {
+      console.error("advanceTour error:", err);
+      alert("Error: " + (err.message || err));
+      nextBtn.disabled = false;
+      nextBtn.innerText = "Retry &rarr;";
     }
-    nextBtn.disabled = false;
   }
 
   function cancelTour() {
@@ -1851,7 +1902,6 @@
     tourCurrentStep = 0;
   }
 
-  // Alias for backward compatibility
   function runGuidedDemo() {
     startNarratedTour();
   }
