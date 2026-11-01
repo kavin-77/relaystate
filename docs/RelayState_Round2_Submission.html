@@ -134,7 +134,6 @@
     color: #000000;
   }
 
-  .callout.amber { background: #fffbeb; border-color: #fde68a; border-left: 3.5px solid #d97706; }
   .callout.sage { background: #f0fdf4; border-color: #bbf7d0; border-left: 3.5px solid #16a34a; }
 
   .card-grid {
@@ -188,11 +187,11 @@
       <span class="badge">Team InnoviX</span>
     </div>
     <h1 class="project-title">RelayState: Round 2 Project Documentation</h1>
-    <div class="tagline">A Functional, Grounded Knowledge-Handover Engine & Cryptographic Audit Ledger</div>
+    <div class="tagline">A Grounded Knowledge-Handover Engine & Cryptographic Audit Ledger</div>
     <div class="meta-grid">
       <div class="meta-item">
-        <strong>Repository URL</strong>
-        <span>github.com/innovix-relaystate</span>
+        <strong>GitHub Repository</strong>
+        <span>github.com/kavin-77/relaystate</span>
       </div>
       <div class="meta-item">
         <strong>Deployment Mode</strong>
@@ -204,7 +203,7 @@
       </div>
       <div class="meta-item">
         <strong>Test Suite Status</strong>
-        <span>6/6 Pytest Passing (100%)</span>
+        <span>All 6 Pytest Suites Passing</span>
       </div>
     </div>
   </div>
@@ -217,31 +216,31 @@
       <span class="points-badge">30 Points</span>
     </div>
     <p>
-      In Round 2, the complete 5-stage product journey operates end-to-end without broken dependencies. Judges can launch the application, load the synthetic corpus (*Project Hyperion*), review grounded claims, and experience the transition from leaver drafting to successor continuation:
+      In Round 2, the complete 5-stage product journey operates end-to-end. Evaluators can launch the application, load the synthetic corpus (*Project Hyperion*), inspect grounded claims, and complete the transition from leaver drafting to successor continuation:
     </p>
     <table>
       <thead>
         <tr>
           <th style="width: 15%;">Stage</th>
           <th style="width: 35%;">Functional Capability</th>
-          <th style="width: 50%;">Judge Interactive Experience</th>
+          <th style="width: 50%;">Evaluator Interactive Journey</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><strong>01 Connect</strong></td>
-          <td>Ingests 55 commits, 25 PRs, 121 chat messages, and 13 Jira tickets.</td>
+          <td>Ingests 56 commits, 25 PRs, 121 chat messages, and 13 Jira tickets.</td>
           <td>Click <code>Load Demo Project</code>. Ingestion runs in &lt;1 second with real-time stream status indicators.</td>
         </tr>
         <tr>
           <td><strong>02 Reconstruct</strong></td>
-          <td>Extracts decisions, blockers, dependencies, and bus-factor vulnerabilities.</td>
+          <td>Extracts decisions, blockers, dependencies, and bus-factor concentration.</td>
           <td>Automatically surfaces that Dave authored 97.7% of <code>billing/</code> code as a critical organizational risk.</td>
         </tr>
         <tr>
           <td><strong>03 Verify</strong></td>
           <td>Verbatim grounding check + temporal cross-modal supersession check.</td>
-          <td>Chat Redis agreement is flagged <code>SUPERSEDED_BY_CODE</code> by Memcached commit; hallucinated quotes are dropped.</td>
+          <td>Chat Redis agreement is flagged <code>SUPERSEDED_BY_CODE</code> by Memcached commit; ungrounded quotes are dropped.</td>
         </tr>
         <tr>
           <td><strong>04 Review</strong></td>
@@ -278,25 +277,25 @@
           <td><strong>Architecture & Stack</strong></td>
           <td>Next.js 14 + Postgres + ChromaDB</td>
           <td><strong>FastAPI + SQLite + Vanilla JS (Single HTML) + Docker</strong></td>
-          <td><strong>Bulletproof Deployment:</strong> Eliminates external DB connection pool drops and React hydration crashes for judges. Boots in 1 second.</td>
+          <td><strong>Self-Contained Deployment:</strong> Eliminates external DB connection pool drops and client hydration issues for evaluators. Runs as a single process that boots in under 1 second.</td>
         </tr>
         <tr>
           <td><strong>Authentication</strong></td>
           <td>Mandatory OAuth 2.0 Login</td>
           <td><strong>No-Login Role Picker + Dismissible Info Banner</strong></td>
-          <td><strong>Zero-Friction Evaluation:</strong> Judges test all 3 personas instantly without signup friction. Server still strictly enforces access boundaries.</td>
+          <td><strong>Accessible Evaluation:</strong> Evaluators can inspect all 3 personas immediately without account creation friction. Access boundaries are enforced by the server based on the active role header.</td>
         </tr>
         <tr>
           <td><strong>Data Isolation</strong></td>
           <td>Shared session cookies</td>
           <td><strong>Per-Visitor Workspace (UUID + <code>X-Workspace</code> header)</strong></td>
-          <td>Allows multiple judges to test simultaneously in isolated sandboxes with a dedicated "Reset" button.</td>
+          <td>Allows multiple evaluators to test simultaneously in isolated sandboxes with a dedicated "Reset" button.</td>
         </tr>
         <tr>
           <td><strong>Audit Ledger</strong></td>
           <td>Abstract relational audit log</td>
           <td><strong>Cryptographic Hash Chain with Tamper Simulation</strong></td>
-          <td>Interactive proof: Judges can click <code>Simulate Tamper</code> and watch cryptographic verification fail, then click <code>Restore</code>.</td>
+          <td>Interactive proof: Evaluators can click <code>Simulate Tamper</code> and observe verification detect tampering, then click <code>Restore</code>.</td>
         </tr>
       </tbody>
     </table>
@@ -310,11 +309,11 @@
       <span class="points-badge">25 Points</span>
     </div>
     <div class="callout sage">
-      <strong>Planted Evaluation Traps (Demonstrating Real System Intelligence):</strong>
+      <strong>Planted Evaluation Traps:</strong>
       <ul>
         <li><strong>Temporal Supersession Trap:</strong> Oct 10 chat agreement to use Redis for session cache is compared chronologically against Git master code. Oct 18 commit (<code>commit-7a89b1</code>) implementing Memcached automatically demotes the chat claim to <code>SUPERSEDED_BY_CODE</code>.</li>
         <li><strong>Pre-Storage Secret Scrubbing:</strong> Ingestion runs regex/NER token filters that sanitize AWS access keys (<code>AKIA...</code>), emails, and phone numbers before data enters storage or LLM context.</li>
-        <li><strong>Verbatim Grounding Check:</strong> A built-in test claim citing a fabricated Apollo GraphQL quote is caught by the grounding validator and dropped, logging a <code>GROUNDING_DROP</code> event.</li>
+        <li><strong>Verbatim Grounding Check:</strong> A candidate claim citing a fabricated Apollo GraphQL quote is caught by the grounding validator and dropped, logging a <code>GROUNDING_DROP</code> event.</li>
         <li><strong>Unanswered Question Uncertainty:</strong> Dave's question regarding Twilio SMS gateway ownership received zero replies and is flagged as <code>UNCERTAIN / UNANSWERED</code>.</li>
         <li><strong>Orphaned Jira Ticket:</strong> <code>HYP-107</code> (invoice reconciliation automation) has <code>Assignee: Unassigned</code> and is tagged <code>MISSING OWNER</code>.</li>
         <li><strong>Excluded Privacy Boundaries:</strong> 3 sensitive streams (<code>#hr-confidential</code>, <code>dm-dave-sarah</code>, <code>hr-payroll-tools</code>) are automatically excluded at ingestion with explicit justifications shown in the UI.</li>
@@ -329,7 +328,7 @@
   <div class="section">
     <div class="section-header">
       <span class="section-num">04</span>
-      <h2>Automated Test Evidence (100% Pass Rate)</h2>
+      <h2>Automated Test Evidence (Passing Test Suite)</h2>
     </div>
     <p>
       The complete codebase is validated by 6 automated test suites executing against simulated database states (<code>pytest tests -v</code>):
@@ -350,7 +349,7 @@
         </tr>
         <tr>
           <td><code>test_grounding.py</code></td>
-          <td>Confirms verbatim quote validation and dropping of hallucinated candidate claims.</td>
+          <td>Confirms verbatim quote validation and dropping of ungrounded candidate claims.</td>
           <td><strong style="color: #166534;">PASSED</strong></td>
         </tr>
         <tr>
@@ -380,50 +379,66 @@
       <span class="points-badge">15 Points</span>
     </div>
     <p>
-      In strict accordance with the Round 2 brief requiring <em>"substantial product improvements rather than cosmetic changes,"</em> Team InnoviX commits to delivering:
+      In accordance with the Round 2 brief requiring <em>"substantial product improvements rather than cosmetic changes,"</em> Team InnoviX commits to delivering:
     </p>
     <div class="card-grid">
       <div class="card">
-        <h3>1. Generalized Temporal Contradiction Engine</h3>
-        <p>Expand beyond rule-based triggers by using embedding cosine clustering and an LLM referee to cross-examine asynchronous chat debates against merged pull-request code diffs across unconstrained domains.</p>
+        <h3>1. Semantic + LLM Contradiction Engine</h3>
+        <p>Expand beyond predefined topics by combining embedding-based semantic claim clustering with an LLM evaluation pass that cross-examines arbitrary chat assertions against pull request diffs and commit histories across unconstrained project topics.</p>
       </div>
       <div class="card">
-        <h3>2. Multi-Role RBAC with OAuth & Asymmetric Keys</h3>
-        <p>Replace client-side role switching with verified Google OAuth 2.0 / GitHub Enterprise authentication, signing handover receipts using asymmetric Ed25519 cryptographic key-pairs.</p>
+        <h3>2. Role-Tailored Views with Sensitivity Levels</h3>
+        <p>Implement granular claim sensitivity classifications (e.g. internal technical debt and debugging quirks visible strictly to technical successors, while executive roadmaps, risk registers, and ownership milestones surface in management views).</p>
       </div>
       <div class="card">
-        <h3>3. Interactive Day-1 Sandbox Verification</h3>
-        <p>Transform the successor view from a static checklist into an active sandbox that runs automated test suites against the new joiner's local environment, confirming staging access and repo readiness.</p>
+        <h3>3. Interactive Day-1 Navigator with Audit Logs</h3>
+        <p>Upgrade the successor view into a step-by-step onboarding walkthrough featuring direct evidence links, task progress tracking (checkboxes and verification checks), with completion milestones formally recorded into the cryptographic audit trail.</p>
       </div>
     </div>
   </div>
 
-  <!-- 6. USABILITY & PARTICIPANT DETAILS (10 POINTS) -->
+  <!-- 6. KNOWN LIMITATIONS & USABILITY (10 POINTS) -->
   <div class="section">
     <div class="section-header">
       <span class="section-num">06</span>
-      <h2>Usability, Honest Limitations & Participant Details</h2>
+      <h2>Known Limitations, Usability & Participant Details</h2>
       <span class="points-badge">10 Points Usability</span>
     </div>
     <table>
       <thead>
         <tr>
-          <th style="width: 25%;">Attribute</th>
-          <th style="width: 75%;">Description & Implementation Detail</th>
+          <th style="width: 25%;">Area</th>
+          <th style="width: 75%;">Factual Detail & Engineering Context</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><strong>Guided Walkthrough</strong></td>
-          <td>A 1-click <code>Run Guided Walkthrough</code> button steps judges through data ingestion, supersession review, 403 blocking, lead approval, and successor acknowledgement in under 60 seconds.</td>
+          <td><strong>Demo Role Picker</strong></td>
+          <td>Roles are selected from a dropdown menu without verified logins to enable immediate evaluator inspection. Access controls are enforced by backend headers.</td>
         </tr>
         <tr>
-          <td><strong>Honest Limitations</strong></td>
-          <td>Current demonstration uses pre-scoped synthetic data (<em>Project Hyperion</em>) to guarantee complete privacy compliance without requiring real corporate secrets. Role switching is unlocked for judge evaluation convenience.</td>
+          <td><strong>Extractor Scope</strong></td>
+          <td>The deterministic rule-based extractor is calibrated to the planted Project Hyperion topics. Unconstrained topic extraction across arbitrary codebases relies on the Gemini LLM pipeline.</td>
+        </tr>
+        <tr>
+          <td><strong>Data Corpus</strong></td>
+          <td>Operates on simulated Project Hyperion fixtures (commits, PRs, chat, Jira) to maintain data privacy rather than live OAuth webhooks into corporate tools.</td>
+        </tr>
+        <tr>
+          <td><strong>LLM Dependency</strong></td>
+          <td>The Gemini extraction pipeline requires a valid <code>GEMINI_API_KEY</code> in the environment; if omitted or unavailable, the system defaults to deterministic extraction.</td>
+        </tr>
+        <tr>
+          <td><strong>Free-Host Cold Starts</strong></td>
+          <td>On free hosting services (e.g. Render free tier), inactive instances spin down and may experience a 30–50 second delay on initial load. A keep-alive script can mitigate this.</td>
+        </tr>
+        <tr>
+          <td><strong>Ephemeral Database</strong></td>
+          <td>On container platforms without attached persistent volumes, the SQLite database resides in container memory/ephemeral disk and resets if the container instance restarts.</td>
         </tr>
         <tr>
           <td><strong>AI Tooling Disclosure</strong></td>
-          <td>In accordance with Rule 7, development used Google Antigravity / Gemini for assistance with code boilerplate, architecture planning, and synthetic dataset curation. Runtime inference supports the Gemini API.</td>
+          <td>In accordance with Rule 7, development used Google Antigravity / Gemini for assistance with code boilerplate, architecture planning, and synthetic dataset curation.</td>
         </tr>
         <tr>
           <td><strong>Participant & Team</strong></td>
