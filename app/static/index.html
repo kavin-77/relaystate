@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RelayState — Knowledge Handover Engine</title>
+<style>
+  :root {
+    --bg: #090d16;
+    --surface: #111827;
+    --surface-border: #1f2937;
+    --surface-hover: #1e293b;
+    --text: #f3f4f6;
+    --text-muted: #9ca3af;
+    --primary: #3b82f6;
+    --primary-hover: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --purple: #8b5cf6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding-bottom: 60px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--surface-border);
+    padding: 14px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  .header-content {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    color: white;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .brand-title { font-size: 18px; font-weight: 700; color: #fff; }
+  .brand-team { font-size: 11px; color: var(--primary); font-weight: 600; text-transform: uppercase; margin-left: 6px; }
+
+  .header-controls { display: flex; align-items: center; gap: 10px; }
+  .role-selector {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .version-badge {
+    background: #1e293b;
+    color: #38bdf8;
+    border: 1px solid #0284c7;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .container { max-width: 1300px; margin: 0 auto; padding: 20px 24px; }
+
+  /* Info Banner */
+  .info-banner {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid #334155;
+    border-left: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+  .close-banner { background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; }
+
+  /* Hero & Actions */
+  .hero-card {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  button.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-secondary { background: #1f2937; color: #e5e7eb; border-color: #374151; }
+  .btn-secondary:hover { background: #374151; }
+  .btn-success { background: #059669; color: white; }
+  .btn-success:hover { background: #047857; }
+  .btn-danger { background: #dc2626; color: white; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-sm { padding: 4px 8px; font-size: 11px; border-radius: 4px; }
+
+  /* 5 Core Steps Bar */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-top: 3px solid #475569;
+    padding: 12px;
+    border-radius: 6px;
+  }
+  .step-card.active { border-top-color: var(--primary); }
+  .step-num { font-size: 10px; font-weight: 800; color: var(--primary); text-transform: uppercase; }
+  .step-title { font-size: 13px; font-weight: 700; color: #fff; margin: 2px 0 4px 0; }
+  .step-desc { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+
+  /* Navigation Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Claims Grid */
+  .claims-list { display: flex; flex-direction: column; gap: 12px; }
+  .claim-card {
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    padding: 16px;
+    position: relative;
+  }
+  .claim-card.superseded { border-left: 4px solid var(--warning); }
+  .claim-card.missing { border-left: 4px solid var(--danger); }
+  .claim-card.uncertain { border-left: 4px solid #eab308; }
+  .claim-card.evidenced { border-left: 4px solid var(--success); }
+
+  .claim-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .claim-title { font-size: 14px; font-weight: 700; color: #fff; }
+  .claim-badges { display: flex; gap: 6px; align-items: center; }
+
+  .badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .badge-evidenced { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #059669; }
+  .badge-superseded { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; }
+  .badge-uncertain { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #ca8a04; }
+  .badge-missing { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #dc2626; }
+
+  .citation-pill {
+    background: #0f172a;
+    border: 1px solid #3b82f6;
+    color: #93c5fd;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .citation-pill:hover { background: #1e3a8a; }
+
+  .claim-body { font-size: 13px; color: #cbd5e1; margin-bottom: 10px; }
+  .quote-box {
+    background: #0f172a;
+    border-left: 3px solid #475569;
+    padding: 6px 10px;
+    font-family: monospace;
+    font-size: 11px;
+    color: #94a3b8;
+    margin: 6px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .claim-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid #1f2937;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Slide-out Source Drawer */
+  .source-drawer {
+    position: fixed;
+    top: 0;
+    right: -450px;
+    width: 450px;
+    max-width: 90vw;
+    height: 100vh;
+    background: #0f172a;
+    border-left: 2px solid var(--primary);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+    transition: right 0.3s ease;
+    z-index: 100;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .source-drawer.open { right: 0; }
+  .drawer-close { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; align-self: flex-end; }
+  .drawer-meta { margin: 12px 0; font-size: 12px; color: var(--text-muted); }
+  .drawer-meta strong { color: #fff; }
+  .drawer-content {
+    background: #020617;
+    border: 1px solid #1e293b;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #e2e8f0;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* Audit Table */
+  table.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+  table.custom-table th {
+    background: #0f172a;
+    color: #94a3b8;
+    text-align: left;
+    padding: 8px 10px;
+    border: 1px solid #1f2937;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+  table.custom-table td {
+    padding: 8px 10px;
+    border: 1px solid #1f2937;
+    color: #e2e8f0;
+    vertical-align: top;
+  }
+  table.custom-table tr:nth-child(even) td { background: rgba(17, 24, 39, 0.5); }
+
+  /* 403 Forbidden Box */
+  .forbidden-box {
+    background: rgba(220, 38, 38, 0.15);
+    border: 1px solid #b91c1c;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    margin: 40px auto;
+    max-width: 650px;
+  }
+  .forbidden-box h3 { color: #f87171; font-size: 18px; margin-bottom: 10px; }
+  .forbidden-box p { color: #fca5a5; font-size: 13px; margin-bottom: 16px; }
+
+  @media (max-width: 768px) {
+    .steps-grid { grid-template-columns: 1fr; }
+    .source-drawer { width: 100vw; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-logo">RELAYSTATE</div>
+        <div>
+          <div class="brand-title">Knowledge Handover Engine <span class="brand-team">Team InnoviX</span></div>
+        </div>
+      </div>
+      <div class="header-controls">
+        <label style="font-size: 12px; color: var(--text-muted);">Active Role:</label>
+        <select id="roleSelect" class="role-selector" onchange="onRoleChange()">
+          <option value="leaver">Leaver (Dave - Senior Dev)</option>
+          <option value="lead">Lead (Marcus - Eng Lead)</option>
+          <option value="successor">Successor (Amina - Incoming Joiner)</option>
+        </select>
+        <div id="versionBadge" class="version-badge">v0.1 DRAFT</div>
+        <button class="btn btn-secondary btn-sm" onclick="resetWorkspace()">Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- DISMISSIBLE DEMO INFO BOX -->
+    <div id="infoBanner" class="info-banner">
+      <div>
+        <strong>Demo Mode Notice:</strong> Sign-in is disabled so judges can test the full workflow instantly without creating test accounts. Roles are chosen from the dropdown menu, all data is synthetic, and permission access rules are enforced directly by the server. <em>(Planned: Google OAuth 2.0 to bind roles to verified corporate identities).</em>
+      </div>
+      <button class="close-banner" onclick="document.getElementById('infoBanner').style.display='none'">&times;</button>
+    </div>
+
+    <!-- HERO & ACTION CONTROLS -->
+    <div class="hero-card">
+      <div>
+        <h2 style="font-size: 16px; font-weight: 700; color: #fff;">Project Hyperion: Automated Handover Environment</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+          Ingest 55 commits, 25 PRs, 120 messages, and 13 Jira tickets with secret scrubbing, grounding verification, and cryptographic sign-off.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button id="btnLoadDemo" class="btn btn-primary" onclick="loadDemoData()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Load Demo Project
+        </button>
+        <button id="btnGuidedDemo" class="btn btn-secondary" onclick="runGuidedDemo()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Run Guided Walkthrough
+        </button>
+      </div>
+    </div>
+
+    <!-- 5 WORKFLOW STAGES -->
+    <div class="steps-grid">
+      <div id="stepCard1" class="step-card active">
+        <span class="step-num">Step 01</span>
+        <div class="step-title">Connect</div>
+        <div class="step-desc">Ingest authorized project repositories, chat channels, and issue boards.</div>
+      </div>
+      <div id="stepCard2" class="step-card">
+        <span class="step-num">Step 02</span>
+        <div class="step-title">Reconstruct</div>
+        <div class="step-desc">Extract decision timeline, ownership matrix, and unresolved blockers.</div>
+      </div>
+      <div id="stepCard3" class="step-card">
+        <span class="step-num">Step 03</span>
+        <div class="step-title">Verify</div>
+        <div class="step-desc">Cross-check claims against code reality; attach citation anchors; flag uncertainty.</div>
+      </div>
+      <div id="stepCard4" class="step-card">
+        <span class="step-num">Step 04</span>
+        <div class="step-title">Review</div>
+        <div class="step-desc">Split-screen human review: edit, redact sensitive strings, and sign off.</div>
+      </div>
+      <div id="stepCard5" class="step-card">
+        <span class="step-num">Step 05</span>
+        <div class="step-title">Handover</div>
+        <div class="step-desc">Role-tailored Day-1 onboarding continuation plan for the successor.</div>
+      </div>
+    </div>
+
+    <!-- NAVIGATION TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('reviewPanel')">01. Handover Review Studio</button>
+      <button class="tab-btn" onclick="switchTab('successorPanel')">02. Successor Day-1 Navigator</button>
+      <button class="tab-btn" onclick="switchTab('auditPanel')">03. Cryptographic Audit Trail</button>
+      <button class="tab-btn" onclick="switchTab('sourcesPanel')">04. Sources & Privacy Inspector</button>
+    </div>
+
+    <!-- PANEL 1: REVIEW STUDIO -->
+    <div id="reviewPanel" class="panel active">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700; color: #fff;">Extracted Claims & State Matrix</h3>
+          <p id="extractionSubtext" style="font-size: 12px; color: var(--text-muted);">Loaded claims with verbatim source grounding and temporal cross-verification.</p>
+        </div>
+        <div id="reviewActionButtons" style="display: flex; gap: 8px;">
+          <!-- Populated dynamically based on role & version -->
+        </div>
+      </div>
+
+      <!-- Quick manual redact widget -->
+      <div id="manualRedactBar" style="background: var(--surface); border: 1px solid var(--surface-border); padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Custom Redaction Tool:</span>
+        <input type="text" id="redactInput" placeholder="Enter sensitive string to redact (e.g. compensation, secret)" style="background: #0f172a; border: 1px solid #334155; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 12px; flex: 1;">
+        <button class="btn btn-secondary btn-sm" onclick="performManualRedaction()">Apply Redaction</button>
+      </div>
+
+      <div id="claimsList" class="claims-list">
+        <div style="text-align: center; padding: 40px; color: var(--text-muted); font-size: 13px;">
+          Click "Load Demo Project" above to ingest Project Hyperion and extract grounded claims.
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 2: SUCCESSOR VIEW (WITH 403 FORBIDDEN DEMONSTRATION) -->
+    <div id="successorPanel" class="panel">
+      <div id="successorContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- PANEL 3: AUDIT TRAIL & TAMPER SIMULATOR -->
+    <div id="auditPanel" class="panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700; color: #fff;">Cryptographic Hash-Chained Audit Trail</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Sequential block verification: SHA-256(prev_hash + user + action + diff).</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary btn-sm" onclick="verifyAuditChain()">Verify Audit Chain</button>
+          <button class="btn btn-danger btn-sm" onclick="simulateTamper()">Simulate Tampering</button>
+          <button class="btn btn-secondary btn-sm" onclick="restoreTamper()">Restore Authentic State</button>
+        </div>
+      </div>
+
+      <div id="auditStatusAlert" style="margin-bottom: 14px;"></div>
+
+      <div style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 8px; overflow-x: auto;">
+        <table class="custom-table" id="auditTable">
+          <thead>
+            <tr>
+              <th style="width: 50px;">Seq</th>
+              <th style="width: 140px;">Timestamp</th>
+              <th style="width: 130px;">Action</th>
+              <th style="width: 110px;">Actor</th>
+              <th>Payload Diff</th>
+              <th style="width: 100px;">Current Hash</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">No audit records found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PANEL 4: SOURCES & PRIVACY INSPECTOR -->
+    <div id="sourcesPanel" class="panel">
+      <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px;">Active Ingestion vs. Excluded Privacy Streams</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+        <div style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 8px; padding: 16px;">
+          <h4 style="font-size: 13px; color: var(--success); text-transform: uppercase; margin-bottom: 8px; font-weight: 700;">Authorized Ingested Streams</h4>
+          <div id="activeSourcesList" style="font-size: 12px; color: #cbd5e1;">Loading...</div>
+        </div>
+        <div style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 8px; padding: 16px;">
+          <h4 style="font-size: 13px; color: var(--danger); text-transform: uppercase; margin-bottom: 8px; font-weight: 700;">Excluded Privacy Boundaries</h4>
+          <div id="excludedSourcesList" style="font-size: 12px; color: #cbd5e1;">Loading...</div>
+        </div>
+      </div>
+
+      <h3 style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 8px;">Bus-Factor Vulnerability Analysis</h3>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Automated commit distribution analysis identifies orphaned modules before handover.</p>
+      <div style="background: var(--surface); border: 1px solid var(--surface-border); border-radius: 8px; overflow-x: auto;">
+        <table class="custom-table" id="busFactorTable">
+          <thead>
+            <tr>
+              <th>Module</th>
+              <th>Total Commits</th>
+              <th>Leaver Commits</th>
+              <th>Leaver Share</th>
+              <th>Primary Author</th>
+              <th>Risk Level</th>
+            </tr>
+          </thead>
+          <tbody id="busFactorBody">
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">Load demo data to calculate bus factor.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SLIDE-OUT SOURCE DRAWER -->
+  <div id="sourceDrawer" class="source-drawer">
+    <button class="drawer-close" onclick="closeSourceDrawer()">&times;</button>
+    <h3 id="drawerTitle" style="font-size: 15px; font-weight: 700; color: #fff; margin-top: 10px;">Source Artifact</h3>
+    <div class="drawer-meta" id="drawerMeta">Loading metadata...</div>
+    <div class="drawer-content" id="drawerContent">Loading source payload...</div>
+  </div>
+
+<script>
+  // Workspace management
+  function getWorkspaceId() {
+    let ws = localStorage.getItem('relaystate_ws_id');
+    if (!ws) {
+      ws = 'ws-' + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem('relaystate_ws_id', ws);
+    }
+    return ws;
+  }
+
+  function getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'X-Workspace': getWorkspaceId(),
+      'X-Role': document.getElementById('roleSelect').value
+    };
+  }
+
+  async function resetWorkspace() {
+    if (confirm("Reset current demo workspace to clean state?")) {
+      await fetch('/api/workspace/reset', { method: 'POST', headers: getHeaders() });
+      location.reload();
+    }
+  }
+
+  function switchTab(panelId) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+    if (panelId === 'successorPanel') loadSuccessorView();
+    if (panelId === 'auditPanel') loadAuditLog();
+    if (panelId === 'sourcesPanel') loadSourcesAndBusFactor();
+  }
+
+  function onRoleChange() {
+    const role = document.getElementById('roleSelect').value;
+    loadWorkspaceState();
+    loadClaims();
+    if (document.getElementById('successorPanel').classList.contains('active')) {
+      loadSuccessorView();
+    }
+  }
+
+  async function loadWorkspaceState() {
+    const res = await fetch('/api/workspace/state', { headers: getHeaders() });
+    const data = await res.json();
+    const badge = document.getElementById('versionBadge');
+    badge.innerText = data.version.toUpperCase();
+    if (data.version === 'v1.0') {
+      badge.style.borderColor = '#10b981';
+      badge.style.color = '#34d399';
+    } else if (data.version === 'v0.2') {
+      badge.style.borderColor = '#f59e0b';
+      badge.style.color = '#fbbf24';
+    } else {
+      badge.style.borderColor = '#0284c7';
+      badge.style.color = '#38bdf8';
+    }
+    updateActionButtons(data);
+  }
+
+  function updateActionButtons(state) {
+    const container = document.getElementById('reviewActionButtons');
+    const role = document.getElementById('roleSelect').value;
+    container.innerHTML = '';
+
+    if (role === 'leaver' && state.version === 'v0.1') {
+      container.innerHTML = `
+        <button class="btn btn-primary" onclick="leaverSignoff()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Leaver Sign-Off (Promote to v0.2)
+        </button>
+      `;
+    } else if (role === 'lead' && state.version === 'v0.2') {
+      container.innerHTML = `
+        <button class="btn btn-success" onclick="leadSignoff()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Lead Sign-Off (Publish v1.0)
+        </button>
+      `;
+    }
+  }
+
+  async function loadDemoData() {
+    const btn = document.getElementById('btnLoadDemo');
+    btn.disabled = true;
+    btn.innerText = "Ingesting...";
+    
+    // Step 1: Ingest
+    await fetch('/api/ingest', { method: 'POST', headers: getHeaders() });
+    document.getElementById('stepCard1').classList.add('active');
+    
+    btn.innerText = "Extracting...";
+    // Step 2 & 3: Extract + Ground
+    const extRes = await fetch('/api/extract', { method: 'POST', headers: getHeaders() });
+    const extData = await extRes.json();
+    document.getElementById('stepCard2').classList.add('active');
+    document.getElementById('stepCard3').classList.add('active');
+    
+    document.getElementById('extractionSubtext').innerHTML = `
+      Extractor: <strong>${extData.extractor_used}</strong> | Claims Grounded: <strong>${extData.claims_extracted}</strong> | Grounding Drops: <strong style="color: #f87171;">${extData.claims_dropped_for_grounding}</strong>
+    `;
+
+    btn.disabled = false;
+    btn.innerText = "Demo Loaded!";
+    setTimeout(() => { btn.innerText = "Reload Demo Project"; }, 2000);
+
+    loadWorkspaceState();
+    loadClaims();
+    loadSourcesAndBusFactor();
+  }
+
+  async function loadClaims() {
+    const res = await fetch('/api/claims', { headers: getHeaders() });
+    if (res.status === 403) {
+      // Handled in successor panel
+      return;
+    }
+    const data = await res.json();
+    const container = document.getElementById('claimsList');
+    if (!data.claims || data.claims.length === 0) {
+      container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No claims available. Load demo data first.</div>';
+      return;
+    }
+
+    container.innerHTML = data.claims.map(claim => {
+      let statusBadge = '';
+      let borderClass = 'evidenced';
+      if (claim.status === 'SUPERSEDED_BY_CODE') {
+        statusBadge = '<span class="badge badge-superseded">SUPERSEDED BY CODE</span>';
+        borderClass = 'superseded';
+      } else if (claim.status === 'UNCERTAIN') {
+        statusBadge = '<span class="badge badge-uncertain">UNCERTAIN / UNANSWERED</span>';
+        borderClass = 'uncertain';
+      } else if (claim.status === 'MISSING') {
+        statusBadge = '<span class="badge badge-missing">MISSING OWNER</span>';
+        borderClass = 'missing';
+      } else {
+        statusBadge = '<span class="badge badge-evidenced">EVIDENCED</span>';
+      }
+
+      const role = document.getElementById('roleSelect').value;
+      let reviewActions = '';
+      if (role !== 'successor') {
+        reviewActions = `
+          <div class="claim-actions">
+            <div style="display: flex; gap: 6px;">
+              <button class="btn btn-sm ${claim.approved ? 'btn-success' : 'btn-secondary'}" onclick="reviewClaim('${claim.id}', true)">
+                ${claim.approved ? '✓ Approved' : 'Approve'}
+              </button>
+              <button class="btn btn-sm ${claim.rejected ? 'btn-danger' : 'btn-secondary'}" onclick="reviewClaim('${claim.id}', false)">
+                ${claim.rejected ? '✗ Rejected' : 'Reject'}
+              </button>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="editClaimSummary('${claim.id}', '${escapeQuotes(claim.summary)}')">Edit Summary</button>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="claim-card ${borderClass}">
+          <div class="claim-header">
+            <div>
+              <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">${claim.category}</span>
+              <div class="claim-title">${claim.title}</div>
+            </div>
+            <div class="claim-badges">${statusBadge}</div>
+          </div>
+          <div class="claim-body">${claim.summary}</div>
+          <div class="quote-box">Quote: "${claim.verbatim_quote}"</div>
+          <div style="font-size: 11px; color: #94a3b8; margin: 4px 0;">Reason: ${claim.status_reason}</div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <button class="citation-pill" onclick="openSourceDrawer('${claim.source_id}')">
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              ${claim.source_title}
+            </button>
+            ${claim.superseded_by_id ? `<span style="font-size: 11px; color: #f59e0b;">(Overridden by ${claim.superseded_by_id})</span>` : ''}
+          </div>
+          ${reviewActions}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function escapeQuotes(str) {
+    return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
+  async function reviewClaim(claimId, isApprove) {
+    const payload = isApprove ? { approved: true, rejected: false } : { approved: false, rejected: true };
+    await fetch(`/api/claims/${claimId}/review`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    loadClaims();
+  }
+
+  async function editClaimSummary(claimId, currentSummary) {
+    const newSummary = prompt("Edit claim summary:", currentSummary);
+    if (newSummary && newSummary !== currentSummary) {
+      await fetch(`/api/claims/${claimId}/review`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ summary: newSummary })
+      });
+      loadClaims();
+    }
+  }
+
+  async function performManualRedaction() {
+    const target = document.getElementById('redactInput').value.trim();
+    if (!target) return;
+    await fetch('/api/claims/manual_redact', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ target_string: target })
+    });
+    alert(`Redacted all occurrences of "${target}" across claims and source trails.`);
+    document.getElementById('redactInput').value = '';
+    loadClaims();
+  }
+
+  async function leaverSignoff() {
+    await fetch('/api/signoff/leaver', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ notes: "Leaver Dave reviewed and approved claims." }) });
+    alert("Leaver sign-off completed! Version promoted to v0.2.");
+    loadWorkspaceState();
+  }
+
+  async function leadSignoff() {
+    await fetch('/api/signoff/lead', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ notes: "Engineering Lead Marcus approved v1.0." }) });
+    alert("Engineering Lead approved v1.0! Successor access is now unlocked.");
+    loadWorkspaceState();
+  }
+
+  async function loadSuccessorView() {
+    const container = document.getElementById('successorContainer');
+    const res = await fetch('/api/claims', { headers: getHeaders() });
+    
+    if (res.status === 403) {
+      const err = await res.json();
+      container.innerHTML = `
+        <div class="forbidden-box">
+          <h3>HTTP 403 Forbidden — Successor Access Blocked</h3>
+          <p>${err.detail}</p>
+          <div style="font-size: 12px; color: #fecaca;">
+            <strong>Why this happens:</strong> The brief requires that successors see only verified, authorized project knowledge. Switch role to <em>Lead (Marcus)</em> and click "Lead Sign-Off (Publish v1.0)" to unlock this view.
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const data = await res.json();
+    const stRes = await fetch('/api/workspace/state', { headers: getHeaders() });
+    const state = await stRes.json();
+
+    let ackButton = '';
+    if (!state.successor_acknowledged_at) {
+      ackButton = `
+        <button class="btn btn-success" onclick="acknowledgeReceipt()">
+          Acknowledge Receipt & Assume Ownership
+        </button>
+      `;
+    } else {
+      ackButton = `<span style="color: var(--success); font-weight: 700;">✓ Acknowledged on ${new Date(state.successor_acknowledged_at).toLocaleTimeString()}</span>`;
+    }
+
+    container.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 15px; font-weight: 700; color: #fff;">Successor Day-1 Onboarding Navigator</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Curated continuation plan: approved decisions, active blockers, and source anchors.</p>
+        </div>
+        <div>${ackButton}</div>
+      </div>
+      <div class="claims-list">
+        ${data.claims.map(c => `
+          <div class="claim-card evidenced">
+            <div class="claim-title">${c.title}</div>
+            <div class="claim-body">${c.summary}</div>
+            <button class="citation-pill" onclick="openSourceDrawer('${c.source_id}')">
+              ${c.source_title}
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  async function acknowledgeReceipt() {
+    await fetch('/api/successor/acknowledge', { method: 'POST', headers: getHeaders() });
+    alert("Receipt acknowledged and recorded into cryptographic audit trail!");
+    loadSuccessorView();
+  }
+
+  async function loadAuditLog() {
+    const res = await fetch('/api/audit/log', { headers: getHeaders() });
+    const data = await res.json();
+    const tbody = document.getElementById('auditTableBody');
+    if (!data.records || data.records.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">No audit records found.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.records.map(r => `
+      <tr>
+        <td><strong>#${r.seq}</strong></td>
+        <td style="font-family: monospace;">${r.timestamp.substring(11, 19)}</td>
+        <td><code>${r.action}</code></td>
+        <td>${r.actor}</td>
+        <td style="font-family: monospace; font-size: 11px;">${r.payload_diff}</td>
+        <td style="font-family: monospace; color: var(--primary);">${r.curr_hash.substring(0, 10)}...</td>
+      </tr>
+    `).join('');
+  }
+
+  async function verifyAuditChain() {
+    const alertBox = document.getElementById('auditStatusAlert');
+    const res = await fetch('/api/audit/verify', { headers: getHeaders() });
+    const data = await res.json();
+    if (data.valid) {
+      alertBox.innerHTML = `
+        <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; padding: 10px 14px; border-radius: 6px; color: #34d399; font-size: 13px;">
+          ✓ <strong>Audit Trail Valid:</strong> All ${data.total_blocks} blocks verified sequentially against cryptographic hash root. Zero tampering detected.
+        </div>
+      `;
+    } else {
+      alertBox.innerHTML = `
+        <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; padding: 10px 14px; border-radius: 6px; color: #f87171; font-size: 13px;">
+          ✗ <strong>TAMPERING DETECTED:</strong> Chain broken at block #${data.broken_at_seq}! ${data.reason}
+        </div>
+      `;
+    }
+  }
+
+  async function simulateTamper() {
+    const res = await fetch('/api/audit/simulate_tamper', { method: 'POST', headers: getHeaders() });
+    const data = await res.json();
+    alert(data.message);
+    loadAuditLog();
+    verifyAuditChain();
+  }
+
+  async function restoreTamper() {
+    const res = await fetch('/api/audit/restore', { method: 'POST', headers: getHeaders() });
+    const data = await res.json();
+    alert(data.message);
+    loadAuditLog();
+    verifyAuditChain();
+  }
+
+  async function loadSourcesAndBusFactor() {
+    const sRes = await fetch('/api/sources/summary', { headers: getHeaders() });
+    const sData = await sRes.json();
+    
+    let activeHtml = '<ul style="padding-left: 18px; line-height: 1.8;">';
+    for (let [k, v] of Object.entries(sData.active_sources || {})) {
+      activeHtml += `<li><strong>${k}</strong>: ${v} artifacts ingested (scrubbed of secrets)</li>`;
+    }
+    activeHtml += '</ul>';
+    document.getElementById('activeSourcesList').innerHTML = activeHtml;
+
+    let exclHtml = '<ul style="padding-left: 18px; line-height: 1.8;">';
+    for (let item of sData.excluded_sources || []) {
+      exclHtml += `<li><strong>${item.source_channel}</strong>: <span style="color: #f87171;">${item.exclusion_reason}</span></li>`;
+    }
+    exclHtml += '</ul>';
+    document.getElementById('excludedSourcesList').innerHTML = exclHtml;
+
+    const bRes = await fetch('/api/bus_factor', { headers: getHeaders() });
+    const bData = await bRes.json();
+    const tbody = document.getElementById('busFactorBody');
+    tbody.innerHTML = (bData || []).map(row => `
+      <tr>
+        <td><strong>${row.module}</strong></td>
+        <td>${row.total_commits}</td>
+        <td>${row.leaver_commits}</td>
+        <td style="font-weight: 700; color: ${row.leaver_share_pct > 80 ? '#ef4444' : '#e2e8f0'};">${row.leaver_share_pct}%</td>
+        <td>${row.primary_author}</td>
+        <td><span class="badge ${row.leaver_share_pct > 80 ? 'badge-missing' : 'badge-evidenced'}">${row.risk_level}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  async function openSourceDrawer(sourceId) {
+    const drawer = document.getElementById('sourceDrawer');
+    const res = await fetch(`/api/sources/${sourceId}`, { headers: getHeaders() });
+    if (!res.ok) {
+      alert("Source artifact not found.");
+      return;
+    }
+    const data = await res.json();
+    document.getElementById('drawerTitle').innerText = data.source_title;
+    document.getElementById('drawerMeta').innerHTML = `
+      Source ID: <strong>${data.source_id}</strong><br>
+      Channel / Repo: <strong>${data.source_channel}</strong><br>
+      Author: <strong>${data.author}</strong> | Timestamp: <strong>${data.timestamp}</strong>
+    `;
+    document.getElementById('drawerContent').innerText = data.content_redacted;
+    drawer.classList.add('open');
+  }
+
+  function closeSourceDrawer() {
+    document.getElementById('sourceDrawer').classList.remove('open');
+  }
+
+  // GUIDED TOUR SCRIPT
+  async function runGuidedDemo() {
+    alert("Step 1: Loading demo project Project Hyperion...");
+    await loadDemoData();
+    alert("Step 2: Claims reconstructed! Look at claim #2: the Redis chat decision is flagged 'SUPERSEDED BY CODE' by commit-7a89b1!");
+    switchTab('reviewPanel');
+    alert("Step 3: Notice the Redaction tool and Claim-Evidence citations. Now switching role to Successor (Amina)...");
+    document.getElementById('roleSelect').value = 'successor';
+    onRoleChange();
+    switchTab('successorPanel');
+    alert("Step 4: Successor gets HTTP 403 Forbidden! The handover is in v0.1 draft mode. Let's switch back to Lead (Marcus) and publish v1.0.");
+    document.getElementById('roleSelect').value = 'leaver';
+    onRoleChange();
+    await leaverSignoff();
+    document.getElementById('roleSelect').value = 'lead';
+    onRoleChange();
+    await leadSignoff();
+    alert("Step 5: Handover published as v1.0! Now switching to Successor view...");
+    document.getElementById('roleSelect').value = 'successor';
+    onRoleChange();
+    switchTab('successorPanel');
+    alert("Guided walkthrough complete! Try clicking 'Cryptographic Audit Trail' to test tamper simulation.");
+  }
+
+  // On page load
+  window.onload = () => {
+    loadWorkspaceState();
+  };
+</script>
+</body>
+</html>
