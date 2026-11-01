@@ -658,14 +658,209 @@
     .header-inner { padding: 10px 14px; }
     .page-container { padding: 14px 14px 0 14px; }
     .hero-sheet { padding: 20px 16px; }
-    .hero-headline { font-size: 21px; }
-    .handover-paper { padding: 20px 16px; }
-    .doc-title { font-size: 20px; }
+    .hero-headline { font-size: 20px; }
+    .handover-paper { padding: 20px 14px; }
+    .doc-title { font-size: 19px; }
     .stepper { flex-direction: column; }
     .step-node { border-right: none; border-bottom: 1px solid var(--border); }
     .step-node:last-child { border-bottom: none; }
     .source-drawer { width: 100vw; }
+    .role-selector-wrap { align-items: flex-start; margin-top: 6px; width: 100%; }
+    .try-steps-grid { grid-template-columns: 1fr; }
+    .tour-banner { position: static; padding: 12px 14px; }
+    .tour-banner-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .tour-banner-actions { width: 100%; justify-content: flex-start; }
+    .legend-and-tips { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .signoff-note-wrap { flex-direction: column; align-items: flex-start; }
   }
+
+  /* Role selector subtitle */
+  .role-selector-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .role-sub-hint {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 3px;
+  }
+
+  /* Try it in 4 steps card */
+  .try-steps-card {
+    background: var(--paper-subtle);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin: 16px 0 20px 0;
+  }
+  .try-steps-header {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .try-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px;
+  }
+  .try-step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .try-step-num {
+    background: var(--ink);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .try-step-content strong {
+    font-size: 12px;
+    color: var(--ink);
+    display: block;
+    margin-bottom: 1px;
+  }
+  .try-step-desc {
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    line-height: 1.35;
+  }
+
+  .btn-link-subtle {
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+    padding: 6px 10px;
+  }
+  .btn-link-subtle:hover { color: var(--ink); }
+
+  /* Narrated Tour Banner */
+  .tour-banner {
+    background: #ffffff;
+    border: 1.5px solid var(--ink);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    position: sticky;
+    top: 55px;
+    z-index: 40;
+  }
+  .tour-banner-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .tour-banner-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+    min-width: 240px;
+  }
+  .tour-banner-badge {
+    background: var(--paper-subtle);
+    border: 1px solid var(--border-strong);
+    color: var(--ink);
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .tour-banner-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .tour-banner-desc {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+  .tour-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Status legend chips & hints */
+  .legend-and-tips {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .status-legend-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .legend-chip {
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--ink-muted);
+    background: var(--paper-subtle);
+    cursor: help;
+  }
+  .legend-chip.evidenced { color: var(--status-evidenced-text); border-color: var(--status-evidenced-border); background: var(--status-evidenced-bg); }
+  .legend-chip.chat-only { color: var(--status-chat-text); border-color: var(--status-chat-border); background: var(--status-chat-bg); }
+  .legend-chip.superseded { color: var(--status-superseded-text); border-color: var(--status-superseded-border); background: var(--status-superseded-bg); }
+  .legend-chip.uncertain { color: var(--status-uncertain-text); border-color: var(--status-uncertain-border); background: var(--status-uncertain-bg); }
+  .legend-chip.missing { color: var(--status-missing-text); border-color: var(--status-missing-border); background: var(--status-missing-bg); }
+  .citation-caption-hint {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+  }
+  .citation-caption-hint strong { color: var(--ink-muted); }
+
+  /* Sign-off note wrap */
+  .signoff-note-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--paper-subtle);
+    border: 1px solid var(--border-strong);
+    padding: 5px 11px;
+    border-radius: 5px;
+    flex-wrap: wrap;
+  }
+  .signoff-req-note {
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .signoff-req-note strong { color: var(--ink); }
+
 </style>
 </head>
 <body>
@@ -678,14 +873,19 @@
         <span class="brand-team">InnoviX</span>
       </div>
       <div class="header-actions">
-        <label style="font-size: 12px; color: var(--ink-muted);">Role:</label>
-        <select id="roleSelect" class="role-picker" onchange="onRoleChange()">
-          <option value="leaver">Leaver (Dave)</option>
-          <option value="lead">Lead (Marcus)</option>
-          <option value="successor">Successor (Amina)</option>
-        </select>
-        <span id="versionBadge" class="version-tag">v0.1</span>
-        <button class="btn-text-reset" onclick="resetWorkspace()">Reset</button>
+        <div class="role-selector-wrap">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <label style="font-size: 12px; color: var(--ink-muted); font-weight: 500;">Role:</label>
+            <select id="roleSelect" class="role-picker" onchange="onRoleChange()">
+              <option value="leaver">Dave: the person leaving</option>
+              <option value="lead">Marcus: team lead</option>
+              <option value="successor">Amina: the new joiner</option>
+            </select>
+            <span id="versionBadge" class="version-tag">v0.1</span>
+            <button class="btn-text-reset" onclick="resetWorkspace()" title="Reset workspace to fresh state">Reset</button>
+          </div>
+          <div class="role-sub-hint">Switch roles anytime to experience the handover from each perspective.</div>
+        </div>
       </div>
     </div>
   </header>
@@ -727,21 +927,75 @@
       </div>
     </div>
 
+    <!-- NARRATED GUIDED TOUR BANNER (Dynamic across all stages) -->
+    <div id="narratedBanner" class="tour-banner" style="display: none;">
+      <div class="tour-banner-inner">
+        <div class="tour-banner-content">
+          <span class="tour-banner-badge" id="tourStepBadge">Step 1 of 4</span>
+          <div>
+            <div class="tour-banner-title" id="tourTitle">Now acting as Dave: Review these claims</div>
+            <div class="tour-banner-desc" id="tourDesc">Review each claim below (approve or reject), then sign off as Dave to promote to v0.2.</div>
+          </div>
+        </div>
+        <div class="tour-banner-actions">
+          <button id="tourNextBtn" class="btn-main" style="padding: 7px 14px; font-size: 12.5px;" onclick="advanceTour()">
+            Next &rarr;
+          </button>
+          <button class="btn-text-reset" style="font-size: 11.5px;" onclick="cancelTour()">Exit demo</button>
+        </div>
+      </div>
+    </div>
+
     <!-- FIRST-RUN HERO (Visible when no data loaded yet) -->
     <div id="firstRunHero" class="hero-sheet">
       <div class="hero-eyebrow">Project Handover Platform</div>
-      <h1 class="hero-headline">Reconstruct project memory into a verified handover document.</h1>
+      <h1 class="hero-headline">Turn a leaving teammate's scattered work into a handover you can trust.</h1>
       <p class="hero-text">
-        When a team member leaves, critical context disappears into chats and closed branches.
-        Load the <em>Project Hyperion</em> demo corpus (56 commits, 25 pull requests, 121 chat messages, and 13 issue tickets) to assemble an evidence-grounded transition document.
+        Dave, a senior developer, is leaving Project Hyperion. His knowledge is scattered across commits, chats and tickets. RelayState turns it into a reviewed handover that Amina, the new joiner, can trust. You will play all three people: Dave (leaver), Marcus (lead) and Amina (successor).
       </p>
+
+      <!-- TRY IT IN 4 STEPS CARD -->
+      <div class="try-steps-card">
+        <div class="try-steps-header">Try it in 4 steps</div>
+        <div class="try-steps-grid">
+          <div class="try-step-item">
+            <span class="try-step-num">1</span>
+            <div class="try-step-content">
+              <strong>Load the demo project</strong>
+              <div class="try-step-desc">Project Hyperion activity is reconstructed into verified claims.</div>
+            </div>
+          </div>
+          <div class="try-step-item">
+            <span class="try-step-num">2</span>
+            <div class="try-step-content">
+              <strong>As Dave, review & sign off</strong>
+              <div class="try-step-desc">Confirm or reject claims, then sign off to promote to draft v0.2.</div>
+            </div>
+          </div>
+          <div class="try-step-item">
+            <span class="try-step-num">3</span>
+            <div class="try-step-content">
+              <strong>As Marcus, sign off to publish</strong>
+              <div class="try-step-desc">Team lead approval unlocks official publication (v1.0).</div>
+            </div>
+          </div>
+          <div class="try-step-item">
+            <span class="try-step-num">4</span>
+            <div class="try-step-content">
+              <strong>As Amina, open & acknowledge</strong>
+              <div class="try-step-desc">The new joiner accesses the Day-1 plan and signs receipt.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="hero-controls">
-        <button id="btnLoadDemo" class="btn-main" onclick="loadDemoData()">
-          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-          Load demo project
+        <button id="btnStartGuided" class="btn-main" onclick="startNarratedTour()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+          Start guided demo
         </button>
-        <button id="btnGuidedDemo" class="btn-secondary" onclick="runGuidedDemo()">
-          Run guided walkthrough
+        <button id="btnLoadDemo" class="btn-link-subtle" onclick="loadDemoData()">
+          or load demo project directly
         </button>
       </div>
     </div>
@@ -758,11 +1012,11 @@
       </button>
       <button class="nav-tab-btn" onclick="switchTab('auditPanel')">
         Activity log (tamper-proof)
-        <span class="tab-sub">Cryptographic Ledger</span>
+        <span class="tab-sub">Proof that nobody edited the record afterwards</span>
       </button>
       <button class="nav-tab-btn" onclick="switchTab('sourcesPanel')">
         What was included and excluded
-        <span class="tab-sub">Privacy & Bus Factor</span>
+        <span class="tab-sub">Sources we deliberately did not read, and why</span>
       </button>
     </div>
 
@@ -789,6 +1043,19 @@
           </div>
         </div>
 
+        <div class="legend-and-tips">
+          <div class="status-legend-bar">
+            <span class="legend-chip evidenced" title="Evidenced: Confirmed by code commit or pull request in the repository">● Evidenced (in code/PR)</span>
+            <span class="legend-chip chat-only" title="Chat discussion only: Discussed in chat, but no commit or pull request found">● Chat discussion only</span>
+            <span class="legend-chip superseded" title="Superseded by code: An earlier discussion that was later overridden by code">● Superseded by code</span>
+            <span class="legend-chip uncertain" title="Uncertain / Open: A proposal or question that remains unresolved">● Uncertain / open</span>
+            <span class="legend-chip missing" title="Missing owner: An orphaned area or task with no assigned owner">● Missing owner</span>
+          </div>
+          <div class="citation-caption-hint">
+            <strong>Citations:</strong> Click any citation pill next to a claim to inspect the verbatim commit, PR, or chat message.
+          </div>
+        </div>
+
         <div id="claimsList">
           <div style="text-align: center; padding: 40px 20px; color: var(--ink-muted); font-size: 13.5px;">
             No project activity loaded yet. Click <strong>"Load demo project"</strong> above to assemble the document.
@@ -812,7 +1079,7 @@
         <div class="doc-header">
           <div>
             <div class="doc-title">Activity Log (Tamper-Proof)</div>
-            <div class="doc-meta">Sequential SHA-256 hash chaining verifies that no entries were altered or inserted.</div>
+            <div class="doc-meta">Proof that nobody edited the record afterwards &bull; Sequential SHA-256 hash chaining logs every review, sign-off, and edit.</div>
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <button class="btn-secondary" style="font-size: 12px; padding: 5px 10px;" onclick="verifyAuditChain()">Verify chain</button>
@@ -849,7 +1116,7 @@
         <div class="doc-header">
           <div>
             <div class="doc-title">Source Ingestion & Privacy Boundaries</div>
-            <div class="doc-meta">Inspect which repositories were ingested, what was excluded for privacy, and module ownership.</div>
+            <div class="doc-meta">Sources we deliberately did not read, and why &bull; Strict privacy boundaries block confidential HR streams, compensation channels, and private direct messages.</div>
           </div>
         </div>
 
@@ -862,7 +1129,7 @@
           </div>
           <div style="background: var(--paper-subtle); border: 1px solid var(--border); border-radius: 6px; padding: 16px;">
             <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: var(--status-missing-text); margin-bottom: 6px;">
-              Excluded Sources (Protected)
+              Excluded Sources (sources we deliberately did not read, and why)
             </div>
             <div id="excludedSourcesList" style="font-size: 12.5px; color: var(--ink);">Loading...</div>
           </div>
@@ -1036,28 +1303,34 @@
     container.innerHTML = '';
 
     if (role === 'leaver' && state.version === 'v0.1') {
-      // Hide button before demo project is loaded
+      // Hide sign-off button completely before demo project is loaded
       if (!hasLoadedData || currentClaims.length === 0) {
         container.innerHTML = '';
         return;
       }
+      // Check if all claims are reviewed
       const unreviewed = currentClaims.filter(c => !c.approved && !c.rejected);
       if (unreviewed.length > 0) {
+        // Hide sign-off button and show short note saying what is still required
         container.innerHTML = `
-          <div style="display: inline-flex; align-items: center; gap: 8px;">
-            <button class="btn-secondary" style="font-size: 11.5px; padding: 5px 9px;" onclick="approveAllClaims()">
-              ✓ Quick review: Approve all
-            </button>
-            <button class="btn-main" disabled style="opacity: 0.55; cursor: not-allowed;" title="Please review (approve or reject) all claims before signing off">
-              Sign off as Leaver (v0.2) &bull; ${unreviewed.length} unreviewed
+          <div class="signoff-note-wrap">
+            <span class="signoff-req-note">
+              <strong>Review required:</strong> Review all ${currentClaims.length} claims (${unreviewed.length} pending) before Dave can sign off.
+            </span>
+            <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="approveAllClaims()">
+              ✓ Quick: Approve all
             </button>
           </div>
         `;
       } else {
+        // All reviewed: show the sign-off button!
         container.innerHTML = `
-          <button class="btn-main" onclick="leaverSignoff()">
-            Sign off as Leaver (v0.2) &rarr;
-          </button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 12px; color: var(--status-evidenced-text); font-weight: 600;">✓ All claims reviewed</span>
+            <button class="btn-main" onclick="leaverSignoff()">
+              Sign off as Dave (v0.2) &rarr;
+            </button>
+          </div>
         `;
       }
     } else if (role === 'lead' && state.version === 'v0.2') {
@@ -1168,18 +1441,23 @@
       html += grp.items.map(claim => {
         let statusClass = 'evidenced';
         let statusLabel = 'Evidenced';
+        let statusTooltip = 'Evidenced: Confirmed by code commit or pull request in the repository';
         if (claim.status === 'SUPERSEDED_BY_CODE') {
           statusClass = 'superseded';
           statusLabel = 'Superseded by code';
+          statusTooltip = 'Superseded by code: An earlier discussion that was later overridden by code';
         } else if (claim.status === 'UNCERTAIN') {
           statusClass = 'uncertain';
           statusLabel = 'Uncertain / Open';
+          statusTooltip = 'Uncertain / Open: A proposal or question that remains unresolved';
         } else if (claim.status === 'MISSING') {
           statusClass = 'missing';
           statusLabel = 'Missing owner';
+          statusTooltip = 'Missing owner: An orphaned area or task with no assigned owner';
         } else if (claim.status === 'CHAT_ONLY') {
           statusClass = 'chat-only';
           statusLabel = 'Chat discussion only';
+          statusTooltip = 'Chat discussion only: Discussed in chat, but no commit or pull request found';
         }
 
         let reviewControls = '';
@@ -1204,8 +1482,8 @@
             <div class="claim-line-top">
               <span class="claim-heading">${claim.title}</span>
               <div class="claim-badges-wrap">
-                <span class="status-pill ${statusClass}">${statusLabel}</span>
-                <button class="cite-pill" onclick="openSourceDrawer('${claim.source_id}')" title="Inspect source artifact">
+                <span class="status-pill ${statusClass}" title="${statusTooltip}">${statusLabel}</span>
+                <button class="cite-pill" onclick="openSourceDrawer('${claim.source_id}')" title="Click to see the exact commit, PR, or chat message this claim comes from">
                   <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                   ${claim.source_title}
                 </button>
@@ -1466,29 +1744,116 @@
     document.getElementById('sourceDrawer').classList.remove('open');
   }
 
-  // GUIDED TOUR SCRIPT
-  async function runGuidedDemo() {
-    alert("Step 1: Assembling handover from Project Hyperion activity...");
-    await loadDemoData();
-    alert("Step 2: Notice the calm document layout grouped into Decisions, Blockers, Risks, and Questions. Look at Claim #2: The Redis proposal is flagged 'Superseded by code'!");
-    switchTab('reviewPanel');
-    alert("Step 3: Now switching role to Successor (Amina) to test permission gating...");
-    document.getElementById('roleSelect').value = 'successor';
-    onRoleChange();
-    switchTab('successorPanel');
-    alert("Step 4: Successor gets HTTP 403 Forbidden! The draft is not approved yet. Let's sign off as Leaver (v0.2) and Lead (v1.0)...");
-    document.getElementById('roleSelect').value = 'leaver';
-    onRoleChange();
-    await approveAllClaims();
-    await leaverSignoff();
-    document.getElementById('roleSelect').value = 'lead';
-    onRoleChange();
-    await leadSignoff();
-    alert("Step 5: Handover is now published in v1.0! Switching to the successor's Day-1 onboarding plan...");
-    document.getElementById('roleSelect').value = 'successor';
-    onRoleChange();
-    switchTab('successorPanel');
-    alert("Guided walkthrough complete! Try clicking 'Activity log (tamper-proof)' to test cryptographic tampering.");
+  // NARRATED GUIDED TOUR SYSTEM
+  let tourCurrentStep = 0;
+
+  async function startNarratedTour() {
+    const banner = document.getElementById('narratedBanner');
+    banner.style.display = 'block';
+
+    // 1. Ingest & extract if not loaded
+    if (!hasLoadedData) {
+      document.getElementById('tourStepBadge').innerText = "Loading";
+      document.getElementById('tourTitle').innerText = "Step 1: Ingesting Project Hyperion...";
+      document.getElementById('tourDesc').innerText = "Reconstructing 56 commits, 25 PRs, and 121 chat messages into verified claims...";
+      document.getElementById('tourNextBtn').style.display = 'none';
+
+      await loadDemoData();
+      document.getElementById('tourNextBtn').style.display = 'inline-flex';
+    }
+
+    tourCurrentStep = 1;
+    renderTourStage();
+  }
+
+  function renderTourStage() {
+    const banner = document.getElementById('narratedBanner');
+    banner.style.display = 'block';
+    const badge = document.getElementById('tourStepBadge');
+    const title = document.getElementById('tourTitle');
+    const desc = document.getElementById('tourDesc');
+    const nextBtn = document.getElementById('tourNextBtn');
+
+    if (tourCurrentStep === 1) {
+      // Stage 1: Dave (Leaver)
+      document.getElementById('roleSelect').value = 'leaver';
+      onRoleChange();
+      switchTab('reviewPanel');
+      badge.innerText = "Step 1 of 4 • Dave (The Leaver)";
+      title.innerText = "Now acting as Dave: Review these claims";
+      desc.innerHTML = `You are Dave, the departing senior developer. Inspect the 5 extracted claims below. Notice the Redis proposal is flagged <em>"Superseded by code"</em>. Click <strong>"Next"</strong> to approve all claims and sign off as Dave (v0.2).`;
+      nextBtn.innerHTML = `Next: Sign off as Dave &rarr;`;
+
+      window.scrollTo({ top: banner.offsetTop - 65, behavior: 'smooth' });
+
+    } else if (tourCurrentStep === 2) {
+      // Stage 2: Marcus (Lead)
+      document.getElementById('roleSelect').value = 'lead';
+      onRoleChange();
+      switchTab('reviewPanel');
+      badge.innerText = "Step 2 of 4 • Marcus (Team Lead)";
+      title.innerText = "Now acting as Marcus: Sign off to publish";
+      desc.innerHTML = `Dave has signed off (v0.2). As Marcus (Team Lead), review the handover and click <strong>"Next"</strong> to approve and publish v1.0, unlocking Amina's plan.`;
+      nextBtn.innerHTML = `Next: Publish handover &rarr;`;
+
+      window.scrollTo({ top: banner.offsetTop - 65, behavior: 'smooth' });
+
+    } else if (tourCurrentStep === 3) {
+      // Stage 3: Amina (Successor)
+      document.getElementById('roleSelect').value = 'successor';
+      onRoleChange();
+      switchTab('successorPanel');
+      badge.innerText = "Step 3 of 4 • Amina (New Joiner)";
+      title.innerText = "Now acting as Amina: Open handover & acknowledge receipt";
+      desc.innerHTML = `Handover v1.0 is published! Successor gating is unlocked. Review Amina's Day-1 onboarding checklist, high-risk modules, and verified credentials, then click <strong>"Next"</strong> to acknowledge receipt.`;
+      nextBtn.innerHTML = `Next: Acknowledge receipt &rarr;`;
+
+      window.scrollTo({ top: banner.offsetTop - 65, behavior: 'smooth' });
+
+    } else if (tourCurrentStep === 4) {
+      // Stage 4: Completed & Audit proof
+      switchTab('auditPanel');
+      badge.innerText = "Step 4 of 4 • Complete";
+      title.innerText = "Handover complete: Proof that nobody edited the record afterwards";
+      desc.innerHTML = `Dave signed, Marcus approved, and Amina acknowledged. Every action is sealed in this tamper-proof SHA-256 hash ledger. Try clicking <strong>"Simulate tamper"</strong> below to test the ledger!`;
+      nextBtn.innerHTML = `Finish demo ✓`;
+
+      window.scrollTo({ top: banner.offsetTop - 65, behavior: 'smooth' });
+    }
+  }
+
+  async function advanceTour() {
+    const nextBtn = document.getElementById('tourNextBtn');
+    nextBtn.disabled = true;
+
+    if (tourCurrentStep === 1) {
+      await approveAllClaims();
+      await leaverSignoff();
+      tourCurrentStep = 2;
+      renderTourStage();
+    } else if (tourCurrentStep === 2) {
+      await leadSignoff();
+      tourCurrentStep = 3;
+      renderTourStage();
+    } else if (tourCurrentStep === 3) {
+      await acknowledgeReceipt();
+      tourCurrentStep = 4;
+      renderTourStage();
+    } else if (tourCurrentStep >= 4) {
+      document.getElementById('narratedBanner').style.display = 'none';
+      tourCurrentStep = 0;
+    }
+    nextBtn.disabled = false;
+  }
+
+  function cancelTour() {
+    document.getElementById('narratedBanner').style.display = 'none';
+    tourCurrentStep = 0;
+  }
+
+  // Alias for backward compatibility
+  function runGuidedDemo() {
+    startNarratedTour();
   }
 
   window.onload = () => {
