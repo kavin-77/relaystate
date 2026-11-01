@@ -16,6 +16,7 @@ def setup_db():
 
 def test_successor_403_and_signoff_gating():
     ws = "test_roles_ws"
+    reset_workspace_db(ws)
     headers_leaver = {"X-Workspace": ws, "X-Role": "leaver"}
     headers_lead = {"X-Workspace": ws, "X-Role": "lead"}
     headers_successor = {"X-Workspace": ws, "X-Role": "successor"}
