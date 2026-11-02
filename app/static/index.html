@@ -653,42 +653,399 @@
   .blocked-box h3 { font-size: 18px; color: #991b1b; margin-bottom: 6px; }
   .blocked-box p { font-size: 13px; color: var(--ink-muted); margin-bottom: 12px; }
 
-  /* Mobile responsiveness (360px safe) */
-  @media (max-width: 640px) {
-    .header-inner { padding: 10px 14px; }
-    .page-container { padding: 14px 14px 0 14px; }
-    .hero-sheet { padding: 20px 16px; }
-    .hero-headline { font-size: 20px; }
-    .handover-paper { padding: 20px 14px; }
-    .doc-title { font-size: 19px; }
-    .stepper { flex-direction: column; }
-    .step-node { border-right: none; border-bottom: 1px solid var(--border); }
-    .step-node:last-child { border-bottom: none; }
-    .source-drawer { width: 100vw; }
-    .coach-bar { padding: 10px 14px; }
-    .coach-inner { flex-direction: column; align-items: stretch; gap: 8px; }
-    .coach-actions { justify-content: flex-end; }
-    .coach-text { font-size: 13px; }
-    .role-selector-wrap { align-items: flex-start; margin-top: 6px; width: 100%; }
-    .try-steps-grid { grid-template-columns: 1fr; }
-    .tour-banner { position: static; padding: 12px 14px; }
-    .tour-banner-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .tour-banner-actions { width: 100%; justify-content: flex-start; }
-    .legend-and-tips { flex-direction: column; align-items: flex-start; gap: 8px; }
-    .signoff-note-wrap { flex-direction: column; align-items: flex-start; }
+
+  /* Compact Stepper for screens under 600px: 5 small numbered dots + current step name, < 60px tall */
+  @media (max-width: 600px) {
+    .stepper-wrap {
+      margin-bottom: 14px;
+    }
+    .stepper {
+      flex-direction: row !important;
+      align-items: center !important;
+      padding: 6px 10px !important;
+      gap: 6px !important;
+      height: 44px !important;
+      max-height: 52px !important;
+      overflow: hidden !important;
+    }
+    .step-node {
+      flex: 0 0 auto !important;
+      padding: 0 !important;
+      border: none !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 6px !important;
+      background: transparent !important;
+    }
+    .step-node .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--paper-subtle);
+      border: 1px solid var(--border-strong);
+      color: var(--ink-faint);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .step-node.is-done .step-index {
+      background: var(--status-evidenced-bg);
+      border-color: var(--status-evidenced-border);
+      color: var(--status-evidenced-text);
+    }
+    .step-node.is-current .step-index {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #ffffff;
+    }
+    .step-node:not(.is-current) .step-label {
+      display: none !important;
+    }
+    .step-node.is-current .step-label {
+      display: inline-block !important;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .stepper-hint {
+      font-size: 11px;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
   }
 
-  /* Role selector subtitle */
+  /* Role selector: compact single line, hide explanation text on mobile */
   .role-selector-wrap {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
+    align-items: center;
+    gap: 12px;
   }
   .role-sub-hint {
-    font-size: 11px;
-    color: var(--ink-faint);
-    margin-top: 3px;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    white-space: nowrap;
   }
+  @media (max-width: 600px) {
+    .role-sub-hint {
+      display: none !important;
+    }
+  }
+
+  /* First screen: 3 small role cards with SVG avatars */
+  .role-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 16px 0 20px 0;
+  }
+  @media (max-width: 500px) {
+    .role-cards-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+  .role-card {
+    background: var(--paper-subtle);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .role-card:hover {
+    border-color: var(--ink);
+    background: #ffffff;
+  }
+  .role-card.active-role-card {
+    border-color: var(--ink);
+    background: #ffffff;
+    box-shadow: 0 0 0 1.5px var(--ink);
+  }
+  .role-card-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--ink);
+    transition: all 0.15s ease;
+  }
+  .role-card.active-role-card .role-card-avatar {
+    background: var(--ink);
+    color: #ffffff;
+    border-color: var(--ink);
+  }
+  .role-card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .role-card-sub {
+    font-size: 11px;
+    color: var(--ink-muted);
+    line-height: 1.2;
+  }
+
+  /* Mini two-point timeline for SUPERSEDED_BY_CODE */
+  .mini-timeline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--status-superseded-bg);
+    border: 1px solid var(--status-superseded-border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+  }
+  .timeline-point {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+  }
+  .timeline-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .struck-dot {
+    background: #fecaca;
+    color: #991b1b;
+  }
+  .code-dot {
+    background: #bbf7d0;
+    color: #166534;
+  }
+  .timeline-date {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    line-height: 1.2;
+  }
+  .timeline-text {
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .timeline-connector {
+    color: var(--status-superseded-text);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  @media (max-width: 480px) {
+    .mini-timeline {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .timeline-connector {
+      transform: rotate(90deg);
+      margin: -2px 0 -2px 6px;
+    }
+  }
+
+  /* Cryptographic Hash Chain linked blocks visual */
+  .hash-chain-container {
+    background: var(--paper-subtle);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chain-blocks-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: min-content;
+  }
+  .chain-block {
+    border-radius: 6px;
+    padding: 7px 10px;
+    min-width: 82px;
+    border: 1.5px solid;
+    transition: all 0.2s ease;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .chain-block.block-valid {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    color: #166534;
+  }
+  .chain-block.block-tampered {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #991b1b;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.25);
+  }
+  .block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .block-hash {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .block-action {
+    font-size: 9.5px;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 75px;
+  }
+  .chain-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .chain-link.link-valid { color: #22c55e; }
+  .chain-link.link-tampered { color: #ef4444; }
+
+  /* Bus Factor visual horizontal bars */
+  .bus-factor-bars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 12px 0 16px 0;
+  }
+  .bus-module-card {
+    background: var(--paper-subtle);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .bus-module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .bus-module-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--ink);
+  }
+  .bus-module-share {
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .bus-bar-track {
+    background: var(--border-strong);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 100%;
+  }
+  .bus-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* Status badge icon shapes */
+  .status-pill {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.4;
+  }
+  .status-pill svg {
+    flex-shrink: 0;
+  }
+  .legend-chip {
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--ink-muted);
+    background: var(--paper-subtle);
+    cursor: help;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Waking up screen overlay */
+  .waking-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(251, 251, 249, 0.94);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .waking-card {
+    background: var(--paper);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    padding: 24px 28px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .waking-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .waking-text {
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+
 
   .btn-link-subtle {
     background: none;
@@ -889,6 +1246,16 @@
 </head>
 <body>
 
+  <!-- WAKING UP SCREEN OVERLAY (Appears if first API takes > 3s) -->
+  <div id="wakingUpOverlay" class="waking-overlay" style="display: none;" role="status" aria-live="polite">
+    <div class="waking-card">
+      <div class="waking-spinner" aria-hidden="true"></div>
+      <div class="waking-text">
+        The free server is waking up. This can take up to a minute. Please wait...
+      </div>
+    </div>
+  </div>
+
   <!-- HEADER -->
   <header>
     <div class="header-inner">
@@ -898,7 +1265,7 @@
       </div>
       <div class="header-actions">
         <div class="role-selector-wrap">
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 8px;">
             <label style="font-size: 12px; color: var(--ink-muted); font-weight: 500;">Role:</label>
             <select id="roleSelect" class="role-picker" onchange="onRoleChange()">
               <option value="leaver">Dave: the person leaving</option>
@@ -908,7 +1275,7 @@
             <span id="versionBadge" class="version-tag">v0.1</span>
             <button class="btn-text-reset" onclick="resetWorkspace()" title="Reset workspace to fresh state">Reset</button>
           </div>
-          <div class="role-sub-hint">Switch roles anytime to experience the handover from each perspective.</div>
+          <span class="role-sub-hint">Switch roles anytime to experience the handover from each perspective.</span>
         </div>
       </div>
     </div>
@@ -962,12 +1329,59 @@
       </div>
     </div>
 
-    <!-- FIRST-RUN HERO (Clean, minimal first screen) -->
+    <!-- FIRST-RUN HERO (Clean, minimal first screen with role cards) -->
     <div id="firstRunHero" class="hero-sheet">
       <h1 class="hero-headline">Turn a leaving teammate's scattered work into a handover you can trust.</h1>
-      <p class="hero-text" style="font-size: 14.5px; margin-bottom: 22px;">
+      <p class="hero-text" style="font-size: 14.5px; margin-bottom: 18px;">
         Dave is leaving. Amina is joining. You play both, plus their lead Marcus.
       </p>
+
+      <!-- 3 Small Role Cards with SVG Avatars -->
+      <div class="role-cards-grid" role="radiogroup" aria-label="Select active role perspective">
+        <div class="role-card active-role-card" id="roleCard-leaver" onclick="selectRoleFromCard('leaver')" role="radio" aria-checked="true" tabindex="0" aria-label="Dave: leaving (active role, click to select)">
+          <div class="role-card-avatar" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="role-card-info">
+            <div class="role-card-name">Dave</div>
+            <div class="role-card-sub">leaving</div>
+          </div>
+        </div>
+
+        <div class="role-card" id="roleCard-lead" onclick="selectRoleFromCard('lead')" role="radio" aria-checked="false" tabindex="0" aria-label="Marcus: team lead (click to select)">
+          <div class="role-card-avatar" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="role-card-info">
+            <div class="role-card-name">Marcus</div>
+            <div class="role-card-sub">team lead</div>
+          </div>
+        </div>
+
+        <div class="role-card" id="roleCard-successor" onclick="selectRoleFromCard('successor')" role="radio" aria-checked="false" tabindex="0" aria-label="Amina: new joiner (click to select)">
+          <div class="role-card-avatar" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="19" y1="8" x2="19" y2="14"></line>
+              <line x1="22" y1="11" x2="16" y2="11"></line>
+            </svg>
+          </div>
+          <div class="role-card-info">
+            <div class="role-card-name">Amina</div>
+            <div class="role-card-sub">new joiner</div>
+          </div>
+        </div>
+      </div>
+
       <div class="hero-controls">
         <button id="btnStartGuided" class="btn-main" onclick="startNarratedTour()">
           Start guided demo
@@ -1023,11 +1437,26 @@
 
         <div class="legend-and-tips" id="claimsLegendBar" style="display: none;">
           <div class="status-legend-bar">
-            <span class="legend-chip evidenced" title="Evidenced: Confirmed by code commit or pull request in the repository">● Evidenced (in code/PR)</span>
-            <span class="legend-chip chat-only" title="Chat discussion only: Discussed in chat, but no commit or pull request found">● Chat discussion only</span>
-            <span class="legend-chip superseded" title="Superseded by code: An earlier discussion that was later overridden by code">● Superseded by code</span>
-            <span class="legend-chip uncertain" title="Uncertain / Open: A proposal or question that remains unresolved">● Uncertain / open</span>
-            <span class="legend-chip missing" title="Missing owner: An orphaned area or task with no assigned owner">● Missing owner</span>
+            <span class="legend-chip evidenced" title="Evidenced: Confirmed by code commit or pull request in the repository">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><path d="M5 8l2 2 4-4"/></svg>
+              Evidenced
+            </span>
+            <span class="legend-chip chat-only" title="Chat discussion only: Discussed in chat, but no commit or pull request found">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h12a1 1 0 011 1v7a1 1 0 01-1 1H5l-3 3V4a1 1 0 011-1z"/></svg>
+              Chat only
+            </span>
+            <span class="legend-chip superseded" title="Superseded by code: An earlier discussion that was later overridden by code">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a5 5 0 019-3M13 8a5 5 0 01-9 3"/><path d="M12 2l3 3-3 3M4 14l-3-3 3-3"/></svg>
+              Superseded by code
+            </span>
+            <span class="legend-chip uncertain" title="Uncertain / Open: A proposal or question that remains unresolved">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><path d="M6.5 6a1.5 1.5 0 013 0c0 1-1.5 1.5-1.5 2.5v.5M8 12h.01"/></svg>
+              Uncertain / open
+            </span>
+            <span class="legend-chip missing" title="Missing owner: An orphaned area or task with no assigned owner">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5l6.5 12h-13L8 1.5z"/><path d="M8 6v3.5M8 11.5h.01"/></svg>
+              Missing owner
+            </span>
           </div>
           <div class="citation-caption-hint">
             <strong>Citations:</strong> Click any citation pill next to a claim to inspect the verbatim commit, PR, or chat message.
@@ -1065,6 +1494,9 @@
             <button class="btn-secondary" style="font-size: 12px; padding: 5px 10px;" onclick="restoreTamper()">Restore</button>
           </div>
         </div>
+
+        <!-- LINKED HASH CHAIN VISUALIZATION BLOCKS -->
+        <div id="auditChainVisual" class="hash-chain-container" role="region" aria-label="Cryptographic Hash Chain Blocks"></div>
 
         <div id="auditStatusAlert" style="margin-bottom: 12px;"></div>
 
@@ -1115,6 +1547,10 @@
 
         <h3 style="font-size: 16px; margin-bottom: 6px;">Module Ownership & Concentration (Bus Factor)</h3>
         <p style="font-size: 12.5px; color: var(--ink-muted); margin-bottom: 12px;">Identifies subsystems where knowledge is concentrated in a single departing developer.</p>
+
+        <!-- VISUAL BUS FACTOR PROGRESS BARS -->
+        <div id="busFactorVisualGrid" class="bus-factor-bars-grid"></div>
+
         <div class="table-scroll">
           <table class="editorial-table" id="busFactorTable">
             <thead>
@@ -1149,6 +1585,169 @@
   let hasLoadedData = false;
   let currentClaims = [];
   let lastWorkspaceState = null;
+  let auditChainRecords = [];
+  let auditChainValidation = null;
+  let isFirstApiResolved = false;
+  let wakingTimer = null;
+  let healthPollTimer = null;
+
+  function startWakingCheck() {
+    wakingTimer = setTimeout(() => {
+      if (!isFirstApiResolved) {
+        const overlay = document.getElementById('wakingUpOverlay');
+        if (overlay) overlay.style.display = 'flex';
+        pollHealthz();
+      }
+    }, 3000);
+  }
+
+  function resolveFirstApi() {
+    isFirstApiResolved = true;
+    if (wakingTimer) clearTimeout(wakingTimer);
+    if (healthPollTimer) clearInterval(healthPollTimer);
+    const overlay = document.getElementById('wakingUpOverlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+
+  function pollHealthz() {
+    if (healthPollTimer) clearInterval(healthPollTimer);
+    healthPollTimer = setInterval(async () => {
+      try {
+        const res = await fetch('/healthz');
+        if (res.ok) {
+          clearInterval(healthPollTimer);
+          healthPollTimer = null;
+          resolveFirstApi();
+          loadWorkspaceState();
+          loadClaims();
+        }
+      } catch (e) {
+        // Still waking up, retry every 3s
+      }
+    }, 3000);
+  }
+
+  function selectRoleFromCard(role) {
+    const sel = document.getElementById('roleSelect');
+    if (sel) {
+      sel.value = role;
+      onRoleChange();
+    }
+  }
+
+  function syncRoleCards(role) {
+    ['leaver', 'lead', 'successor'].forEach(r => {
+      const card = document.getElementById(`roleCard-${r}`);
+      if (card) {
+        if (r === role) {
+          card.classList.add('active-role-card');
+          card.setAttribute('aria-checked', 'true');
+        } else {
+          card.classList.remove('active-role-card');
+          card.setAttribute('aria-checked', 'false');
+        }
+      }
+    });
+  }
+
+  function getStatusBadgeHtml(statusClass, statusLabel, statusTooltip) {
+    let iconSvg = '';
+    if (statusClass === 'evidenced') {
+      iconSvg = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><path d="M5 8l2 2 4-4"/></svg>';
+    } else if (statusClass === 'superseded') {
+      iconSvg = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a5 5 0 019-3M13 8a5 5 0 01-9 3"/><path d="M12 2l3 3-3 3M4 14l-3-3 3-3"/></svg>';
+    } else if (statusClass === 'uncertain') {
+      iconSvg = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><path d="M6.5 6a1.5 1.5 0 013 0c0 1-1.5 1.5-1.5 2.5v.5M8 12h.01"/></svg>';
+    } else if (statusClass === 'missing') {
+      iconSvg = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5l6.5 12h-13L8 1.5z"/><path d="M8 6v3.5M8 11.5h.01"/></svg>';
+    } else if (statusClass === 'chat-only') {
+      iconSvg = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h12a1 1 0 011 1v7a1 1 0 01-1 1H5l-3 3V4a1 1 0 011-1z"/></svg>';
+    }
+    return `<span class="status-pill ${statusClass}" title="${statusTooltip}">${iconSvg}<span>${statusLabel}</span></span>`;
+  }
+
+  function renderSupersededTimeline(claim) {
+    let chatDate = "Oct 10, 2026";
+    let commitDate = "Oct 18, 2026";
+    if (claim.status_reason) {
+      const m = claim.status_reason.match(/from ([A-Za-z]+ \d+).*?\(([A-Za-z]+ \d+)\)/);
+      if (m) {
+        chatDate = m[1] + ", 2026";
+        commitDate = m[2] + ", 2026";
+      }
+    }
+    const chatDecision = "Chat: Agreed on Redis cluster for sessions";
+    const commitDecision = `Code (${claim.superseded_by_id || 'commit-7a89b1'}): Implemented Memcached cluster`;
+
+    return `
+      <div class="mini-timeline" role="region" aria-label="Supersession timeline: chat decision overridden by code commit">
+        <div class="timeline-point struck-point">
+          <div class="timeline-dot struck-dot" aria-hidden="true">
+            <svg width="10" height="10" viewBox="0 0 12 12"><path d="M2 2l8 8m0-8L2 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-date">${chatDate}</div>
+            <div class="timeline-text"><del>${chatDecision}</del></div>
+          </div>
+        </div>
+        <div class="timeline-connector" aria-hidden="true">
+          <svg width="24" height="14" viewBox="0 0 24 14"><path d="M0 7h18m-4-4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="timeline-point code-point">
+          <div class="timeline-dot code-dot" aria-hidden="true">
+            <svg width="10" height="10" viewBox="0 0 12 12"><path d="M2.5 6.5L5 9L9.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-date">${commitDate}</div>
+            <div class="timeline-text"><strong>${commitDecision}</strong></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAuditChainVisual(records, validation) {
+    const container = document.getElementById('auditChainVisual');
+    if (!container) return;
+    if (!records || records.length === 0) {
+      container.innerHTML = '<div style="color: var(--ink-faint); font-size: 12px; padding: 6px;">No blocks in chain yet.</div>';
+      return;
+    }
+
+    const isValid = !validation || validation.valid;
+    const brokenSeq = (!isValid && validation && validation.broken_at_seq !== undefined) ? validation.broken_at_seq : 999999;
+
+    let html = '<div class="chain-blocks-row">';
+    records.forEach((rec, idx) => {
+      const isTampered = !isValid && rec.seq >= brokenSeq;
+      const blockClass = isTampered ? 'block-tampered' : 'block-valid';
+      const statusText = isTampered ? 'Tampered' : 'Valid';
+      const hash6 = (rec.curr_hash || '000000').substring(0, 6);
+
+      html += `
+        <div class="chain-block ${blockClass}" role="article" aria-label="Block ${rec.seq}, hash ${hash6}, status ${statusText}">
+          <div class="block-header">
+            <span class="block-seq">#${rec.seq}</span>
+            <span class="block-status-icon" aria-hidden="true">${isTampered ? '✗' : '✓'}</span>
+          </div>
+          <div class="block-hash" title="${rec.curr_hash}">${hash6}</div>
+          <div class="block-action" title="${rec.action}">${rec.action.toLowerCase()}</div>
+        </div>
+      `;
+
+      if (idx < records.length - 1) {
+        const linkTampered = !isValid && records[idx + 1].seq >= brokenSeq;
+        html += `
+          <div class="chain-link ${linkTampered ? 'link-tampered' : 'link-valid'}" aria-hidden="true">
+            <svg width="18" height="12" viewBox="0 0 18 12"><path d="M0 6h14m-4-4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        `;
+      }
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
 
   function getWorkspaceId() {
     let ws = localStorage.getItem('relaystate_ws_id');
@@ -1192,6 +1791,8 @@
   }
 
   function onRoleChange() {
+    const role = document.getElementById('roleSelect').value;
+    syncRoleCards(role);
     loadWorkspaceState();
     loadClaims();
     if (document.getElementById('successorPanel').classList.contains('active')) {
@@ -1256,8 +1857,10 @@
   }
 
   async function loadWorkspaceState() {
-    const res = await fetch('/api/workspace/state', { headers: getHeaders() });
-    const data = await res.json();
+    try {
+      const res = await fetch('/api/workspace/state', { headers: getHeaders() });
+      if (res.ok) resolveFirstApi();
+      const data = await res.json();
     lastWorkspaceState = data;
     const badge = document.getElementById('versionBadge');
     badge.innerText = data.version;
@@ -1284,6 +1887,9 @@
 
     updateStepperProgress(data);
     updateActionButtons(data);
+    } catch (e) {
+      console.warn("loadWorkspaceState warning:", e);
+    }
   }
 
   function updateActionButtons(state) {
@@ -1485,12 +2091,15 @@
           `;
         }
 
+        const badgeHtml = getStatusBadgeHtml(statusClass, statusLabel, statusTooltip);
+        const timelineHtml = (claim.status === 'SUPERSEDED_BY_CODE') ? renderSupersededTimeline(claim) : '';
+
         return `
           <div class="claim-entry">
             <div class="claim-line-top">
               <span class="claim-heading">${claim.title}</span>
               <div class="claim-badges-wrap">
-                <span class="status-pill ${statusClass}" title="${statusTooltip}">${statusLabel}</span>
+                ${badgeHtml}
                 <button class="cite-pill" onclick="openSourceDrawer('${claim.source_id}')" title="Click to see the exact commit, PR, or chat message this claim comes from">
                   <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                   ${claim.source_title}
@@ -1499,6 +2108,7 @@
             </div>
 
             <div class="claim-summary-text">${claim.summary}</div>
+            ${timelineHtml}
             <div class="claim-quote-block">&ldquo;${claim.verbatim_quote}&rdquo;</div>
 
             <div class="claim-entry-footer">
@@ -1653,6 +2263,9 @@
   async function loadAuditLog() {
     const res = await fetch('/api/audit/log', { headers: getHeaders() });
     const data = await res.json();
+    auditChainRecords = data.records || [];
+    renderAuditChainVisual(auditChainRecords, auditChainValidation);
+
     const tbody = document.getElementById('auditTableBody');
     if (!data.records || data.records.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--ink-muted); padding: 20px;">No audit records found.</td></tr>';
@@ -1675,6 +2288,9 @@
     const alertBox = document.getElementById('auditStatusAlert');
     const res = await fetch('/api/audit/verify', { headers: getHeaders() });
     const data = await res.json();
+    auditChainValidation = data;
+    renderAuditChainVisual(auditChainRecords, auditChainValidation);
+
     if (data.valid) {
       alertBox.innerHTML = `
         <div style="background: var(--status-evidenced-bg); border: 1px solid var(--status-evidenced-border); padding: 8px 12px; border-radius: 4px; color: var(--status-evidenced-text); font-size: 12.5px;">
@@ -1694,16 +2310,16 @@
     const res = await fetch('/api/audit/simulate_tamper', { method: 'POST', headers: getHeaders() });
     const data = await res.json();
     alert(data.message);
-    loadAuditLog();
-    verifyAuditChain();
+    await loadAuditLog();
+    await verifyAuditChain();
   }
 
   async function restoreTamper() {
     const res = await fetch('/api/audit/restore', { method: 'POST', headers: getHeaders() });
     const data = await res.json();
     alert(data.message);
-    loadAuditLog();
-    verifyAuditChain();
+    await loadAuditLog();
+    await verifyAuditChain();
   }
 
   async function loadSourcesAndBusFactor() {
@@ -1726,19 +2342,60 @@
 
     const bRes = await fetch('/api/bus_factor', { headers: getHeaders() });
     const bData = await bRes.json();
+
+    // Render visual cards grid with horizontal bars
+    const visualGrid = document.getElementById('busFactorVisualGrid');
+    if (visualGrid) {
+      visualGrid.innerHTML = (bData || []).map(row => {
+        const isHighRisk = row.leaver_share_pct > 80;
+        const barColor = isHighRisk ? '#dc2626' : '#2563eb';
+        return `
+          <div class="bus-module-card">
+            <div class="bus-module-header">
+              <span class="bus-module-title">${row.module}</span>
+              <span class="bus-module-share" style="color: ${isHighRisk ? '#dc2626' : 'var(--ink)'};">
+                ${row.leaver_share_pct}% ${isHighRisk ? '⚠' : ''}
+              </span>
+            </div>
+            <div class="bus-bar-track" role="progressbar" aria-valuenow="${row.leaver_share_pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${row.module} leaver share: ${row.leaver_share_pct}% ${isHighRisk ? '(High Risk)' : ''}">
+              <div class="bus-bar-fill" style="width: ${Math.min(100, row.leaver_share_pct)}%; background: ${barColor};"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-muted); margin-top: 6px;">
+              <span>${row.leaver_commits} / ${row.total_commits} commits</span>
+              <span style="font-weight: 600; color: ${isHighRisk ? '#dc2626' : '#166534'};">${row.risk_level}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     const tbody = document.getElementById('busFactorBody');
-    tbody.innerHTML = (bData || []).map(row => `
-      <tr>
-        <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">${row.module}</td>
-        <td>${row.total_commits}</td>
-        <td>${row.leaver_commits}</td>
-        <td style="font-weight: 600; color: ${row.leaver_share_pct > 80 ? 'var(--status-missing-text)' : 'inherit'};">${row.leaver_share_pct}%</td>
-        <td>${row.primary_author}</td>
-        <td>
-          <span class="status-pill ${row.leaver_share_pct > 80 ? 'missing' : 'evidenced'}">${row.risk_level}</span>
-        </td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = (bData || []).map(row => {
+      const isHighRisk = row.leaver_share_pct > 80;
+      const barColor = isHighRisk ? '#dc2626' : '#2563eb';
+      return `
+        <tr>
+          <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">${row.module}</td>
+          <td>${row.total_commits}</td>
+          <td>${row.leaver_commits}</td>
+          <td>
+            <div style="display: flex; flex-direction: column; gap: 3px; min-width: 100px;">
+              <span style="font-weight: 700; color: ${isHighRisk ? '#dc2626' : 'inherit'};">${row.leaver_share_pct}%</span>
+              <div class="bus-bar-track" role="progressbar" aria-valuenow="${row.leaver_share_pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${row.module} leaver share: ${row.leaver_share_pct}%">
+                <div class="bus-bar-fill" style="width: ${Math.min(100, row.leaver_share_pct)}%; background: ${barColor};"></div>
+              </div>
+            </div>
+          </td>
+          <td>${row.primary_author}</td>
+          <td>
+            <span class="status-pill ${isHighRisk ? 'missing' : 'evidenced'}">
+              ${isHighRisk ? '<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 1.5l6.5 12h-13L8 1.5z"/><path d="M8 6v3.5M8 11.5h.01"/></svg>' : '<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="8" cy="8" r="7"/><path d="M5 8l2 2 4-4"/></svg>'}
+              ${row.risk_level}
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
   async function openSourceDrawer(sourceId) {
@@ -1930,6 +2587,7 @@
   }
 
   window.onload = () => {
+    startWakingCheck();
     loadWorkspaceState();
   };
 </script>
