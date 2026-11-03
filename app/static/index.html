@@ -194,9 +194,28 @@
     display: flex;
     flex-direction: column;
     gap: 1px;
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, opacity 0.15s ease;
+    user-select: none;
   }
   .step-node:last-child { border-right: none; }
+
+  /* Locked / unreached steps: visually muted, cursor default, no hover */
+  .step-node:not(.is-reached) {
+    opacity: 0.45;
+    cursor: default !important;
+  }
+  .step-node:not(.is-reached):hover {
+    background: transparent !important;
+  }
+
+  /* Reached steps (done or current): clickable with hover effect */
+  .step-node.is-reached {
+    cursor: pointer;
+    opacity: 1;
+  }
+  .step-node.is-reached:hover {
+    background: var(--paper-subtle);
+  }
 
   .step-node .step-index {
     font-size: 9.5px;
@@ -204,6 +223,14 @@
     letter-spacing: 0.5px;
     color: var(--ink-faint);
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .step-node .step-check-icon {
+    font-size: 10px;
+    color: var(--status-evidenced-text);
+    font-weight: 700;
   }
   .step-node .step-label {
     font-weight: 600;
@@ -691,10 +718,27 @@
       font-size: 10px;
       font-weight: 700;
     }
+    .step-node:not(.is-reached) {
+      opacity: 0.4;
+      cursor: default !important;
+    }
+    .step-node.is-reached {
+      cursor: pointer;
+    }
+    .step-node:not(.is-reached):hover {
+      background: transparent !important;
+    }
     .step-node.is-done .step-index {
       background: var(--status-evidenced-bg);
       border-color: var(--status-evidenced-border);
       color: var(--status-evidenced-text);
+    }
+    .step-node.is-done .step-check-icon {
+      display: inline-block !important;
+      font-size: 11px;
+    }
+    .step-node.is-done .step-num-text {
+      display: none !important;
     }
     .step-node.is-current .step-index {
       background: var(--ink);
@@ -1532,25 +1576,40 @@
 
     <!-- 5-STEP REAL PROGRESS STEPPER -->
     <div class="stepper-wrap">
-      <div class="stepper">
-        <div id="stepCard1" class="step-node is-current">
-          <span class="step-index">01</span>
+      <div class="stepper" role="navigation" aria-label="Handover progress steps">
+        <div id="stepCard1" class="step-node is-current is-reached" onclick="handleStepClick(1)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleStepClick(1);}" role="button" tabindex="0" aria-label="Step 1: Connect" aria-disabled="false" title="Jump to Sources Panel">
+          <span class="step-index">
+            <span class="step-num-text">01</span>
+            <span class="step-check-icon" style="display: none;" aria-hidden="true">&#10003;</span>
+          </span>
           <span class="step-label">Connect</span>
         </div>
-        <div id="stepCard2" class="step-node">
-          <span class="step-index">02</span>
+        <div id="stepCard2" class="step-node" onclick="handleStepClick(2)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleStepClick(2);}" role="button" tabindex="-1" aria-label="Step 2: Reconstruct" aria-disabled="true" title="Unlocks as you go. Start the guided demo.">
+          <span class="step-index">
+            <span class="step-num-text">02</span>
+            <span class="step-check-icon" style="display: none;" aria-hidden="true">&#10003;</span>
+          </span>
           <span class="step-label">Reconstruct</span>
         </div>
-        <div id="stepCard3" class="step-node">
-          <span class="step-index">03</span>
+        <div id="stepCard3" class="step-node" onclick="handleStepClick(3)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleStepClick(3);}" role="button" tabindex="-1" aria-label="Step 3: Verify" aria-disabled="true" title="Unlocks as you go. Start the guided demo.">
+          <span class="step-index">
+            <span class="step-num-text">03</span>
+            <span class="step-check-icon" style="display: none;" aria-hidden="true">&#10003;</span>
+          </span>
           <span class="step-label">Verify</span>
         </div>
-        <div id="stepCard4" class="step-node">
-          <span class="step-index">04</span>
+        <div id="stepCard4" class="step-node" onclick="handleStepClick(4)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleStepClick(4);}" role="button" tabindex="-1" aria-label="Step 4: Review" aria-disabled="true" title="Unlocks as you go. Start the guided demo.">
+          <span class="step-index">
+            <span class="step-num-text">04</span>
+            <span class="step-check-icon" style="display: none;" aria-hidden="true">&#10003;</span>
+          </span>
           <span class="step-label">Review</span>
         </div>
-        <div id="stepCard5" class="step-node">
-          <span class="step-index">05</span>
+        <div id="stepCard5" class="step-node" onclick="handleStepClick(5)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleStepClick(5);}" role="button" tabindex="-1" aria-label="Step 5: Handover" aria-disabled="true" title="Unlocks as you go. Start the guided demo.">
+          <span class="step-index">
+            <span class="step-num-text">05</span>
+            <span class="step-check-icon" style="display: none;" aria-hidden="true">&#10003;</span>
+          </span>
           <span class="step-label">Handover</span>
         </div>
       </div>
@@ -2116,6 +2175,56 @@
     }
   }
 
+  function handleStepClick(stepNum) {
+    const card = document.getElementById(`stepCard${stepNum}`);
+    if (!card || !card.classList.contains('is-reached')) {
+      // Step not yet reached: locked, no-op
+      return;
+    }
+
+    if (stepNum === 1) {
+      // Connect -> sources panel (or hero if data not yet loaded)
+      if (hasLoadedData) {
+        switchTab('sourcesPanel');
+        const el = document.getElementById('sourcesPanel');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        const el = document.getElementById('firstRunHero');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } else if (stepNum === 2) {
+      // Reconstruct -> claims
+      switchTab('reviewPanel');
+      const el = document.getElementById('claimsList') || document.getElementById('handoverPaper');
+      if (el) {
+        const yOffset = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: yOffset, behavior: 'smooth' });
+      }
+    } else if (stepNum === 3) {
+      // Verify -> claim statuses and citations
+      switchTab('reviewPanel');
+      const el = document.getElementById('claimsLegendBar') || document.getElementById('claimsList');
+      if (el) {
+        const yOffset = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: yOffset, behavior: 'smooth' });
+      }
+    } else if (stepNum === 4) {
+      // Review -> review area & sign-off
+      switchTab('reviewPanel');
+      const el = document.getElementById('reviewActionButtons') || document.getElementById('handoverPaper');
+      if (el) {
+        const yOffset = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: yOffset, behavior: 'smooth' });
+      }
+    } else if (stepNum === 5) {
+      // Handover -> successor view
+      switchTab('successorPanel');
+      loadSuccessorView();
+      const el = document.getElementById('successorPanel');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   // Update progress stepper state and hint
   function updateStepperProgress(state) {
     const s1 = document.getElementById('stepCard1');
@@ -2124,52 +2233,82 @@
     const s4 = document.getElementById('stepCard4');
     const s5 = document.getElementById('stepCard5');
     const hint = document.getElementById('stepperHint');
+    const cards = [s1, s2, s3, s4, s5];
 
-    [s1, s2, s3, s4, s5].forEach(s => {
-      s.classList.remove('is-done', 'is-current');
+    cards.forEach(s => {
+      s.classList.remove('is-done', 'is-current', 'is-reached');
     });
 
     if (!hasLoadedData) {
-      s1.classList.add('is-current');
+      // Locked state before demo/load: only Step 1 is reached/current
+      s1.classList.add('is-current', 'is-reached');
       hint.innerHTML = '<strong>Next step:</strong> Click "Start guided demo" to assemble the handover from project activity.';
-      return;
-    }
+    } else {
+      s1.classList.add('is-done', 'is-reached');
+      s2.classList.add('is-done', 'is-reached');
+      s3.classList.add('is-done', 'is-reached');
 
-    s1.classList.add('is-done');
-    s2.classList.add('is-done');
-    s3.classList.add('is-done');
+      const role = document.getElementById('roleSelect').value;
 
-    const role = document.getElementById('roleSelect').value;
-
-    if (state.version === 'v0.1') {
-      s4.classList.add('is-current');
-      if (role === 'leaver') {
-        hint.innerHTML = '<strong>Current step (Review):</strong> Review claims below, make any corrections or redactions, then click <strong>"Sign off as Leaver (v0.2)"</strong>.';
-      } else {
-        hint.innerHTML = '<strong>Current step (Review):</strong> Handover is in draft mode (v0.1). Switch role to <strong>Leaver (Dave)</strong> to review and sign off.';
-      }
-    } else if (state.version === 'v0.2') {
-      s4.classList.add('is-current');
-      if (role === 'lead') {
-        hint.innerHTML = '<strong>Current step (Review):</strong> Leaver signed off. You are Lead (Marcus). Click <strong>"Approve & publish (v1.0)"</strong> to unlock the successor plan.';
-      } else {
-        hint.innerHTML = '<strong>Current step (Review):</strong> Leaver signed off (v0.2). Switch role to <strong>Lead (Marcus)</strong> to approve publication.';
-      }
-    } else if (state.version === 'v1.0') {
-      s4.classList.add('is-done');
-      s5.classList.add('is-current');
-      if (state.successor_acknowledged_at) {
-        s5.classList.remove('is-current');
-        s5.classList.add('is-done');
-        hint.innerHTML = '<strong>Handover complete:</strong> The successor acknowledged receipt. Ownership is formally transferred and logged in the audit trail.';
-      } else {
-        if (role === 'successor') {
-          hint.innerHTML = '<strong>Current step (Handover):</strong> Switch to tab <em>"Day-1 plan for the successor"</em>, review tasks, and click <strong>"Acknowledge receipt"</strong>.';
+      if (state.version === 'v0.1') {
+        s4.classList.add('is-current', 'is-reached');
+        if (role === 'leaver') {
+          hint.innerHTML = '<strong>Current step (Review):</strong> Review claims below, make any corrections or redactions, then click <strong>"Sign off as Leaver (v0.2)"</strong>.';
         } else {
-          hint.innerHTML = '<strong>Current step (Handover):</strong> Handover published (v1.0). Switch role to <strong>Successor (Amina)</strong> to view the Day-1 onboarding plan.';
+          hint.innerHTML = '<strong>Current step (Review):</strong> Handover is in draft mode (v0.1). Switch role to <strong>Leaver (Dave)</strong> to review and sign off.';
+        }
+      } else if (state.version === 'v0.2') {
+        s4.classList.add('is-current', 'is-reached');
+        if (role === 'lead') {
+          hint.innerHTML = '<strong>Current step (Review):</strong> Leaver signed off. You are Lead (Marcus). Click <strong>"Approve & publish (v1.0)"</strong> to unlock the successor plan.';
+        } else {
+          hint.innerHTML = '<strong>Current step (Review):</strong> Leaver signed off (v0.2). Switch role to <strong>Lead (Marcus)</strong> to approve publication.';
+        }
+      } else if (state.version === 'v1.0') {
+        s4.classList.add('is-done', 'is-reached');
+        s5.classList.add('is-current', 'is-reached');
+        if (state.successor_acknowledged_at) {
+          s5.classList.remove('is-current');
+          s5.classList.add('is-done');
+          hint.innerHTML = '<strong>Handover complete:</strong> The successor acknowledged receipt. Ownership is formally transferred and logged in the audit trail.';
+        } else {
+          if (role === 'successor') {
+            hint.innerHTML = '<strong>Current step (Handover):</strong> Switch to tab <em>"Day-1 plan for the successor"</em>, review tasks, and click <strong>"Acknowledge receipt"</strong>.';
+          } else {
+            hint.innerHTML = '<strong>Current step (Handover):</strong> Handover published (v1.0). Switch role to <strong>Successor (Amina)</strong> to view the Day-1 onboarding plan.';
+          }
         }
       }
     }
+
+    const sectionNames = {
+      1: 'Sources Panel',
+      2: 'Claims List',
+      3: 'Verification & Citations',
+      4: 'Review & Sign-off Area',
+      5: 'Successor Day-1 Plan'
+    };
+
+    cards.forEach((card, idx) => {
+      const num = idx + 1;
+      const isReached = card.classList.contains('is-reached');
+      const isDone = card.classList.contains('is-done');
+      const checkIcon = card.querySelector('.step-check-icon');
+
+      if (checkIcon) {
+        checkIcon.style.display = isDone ? 'inline' : 'none';
+      }
+
+      if (isReached) {
+        card.setAttribute('aria-disabled', 'false');
+        card.tabIndex = 0;
+        card.title = `Jump to ${sectionNames[num]}`;
+      } else {
+        card.setAttribute('aria-disabled', 'true');
+        card.tabIndex = -1;
+        card.title = 'Unlocks as you go. Start the guided demo.';
+      }
+    });
   }
 
   async function loadWorkspaceState() {
