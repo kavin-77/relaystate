@@ -52,6 +52,7 @@
     font-size: 14.5px;
     padding-bottom: 80px;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
   h1, h2, h3, .serif-font {
@@ -1314,7 +1315,7 @@
         </div>
       </div>
       <div id="stepperHint" class="stepper-hint">
-        <strong>Next step:</strong> Click "Load demo project" to assemble the handover from project activity.
+        <strong>Next step:</strong> Click "Start guided demo" to assemble the handover from project activity.
       </div>
     </div>
 
@@ -1338,7 +1339,7 @@
 
       <!-- 3 Small Role Cards with SVG Avatars -->
       <div class="role-cards-grid" role="radiogroup" aria-label="Select active role perspective">
-        <div class="role-card active-role-card" id="roleCard-leaver" onclick="selectRoleFromCard('leaver')" role="radio" aria-checked="true" tabindex="0" aria-label="Dave: leaving (active role, click to select)">
+        <div class="role-card active-role-card" id="roleCard-leaver" onclick="selectRoleFromCard('leaver')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectRoleFromCard('leaver');}" role="radio" aria-checked="true" tabindex="0" aria-label="Dave: leaving (active role, click to select)">
           <div class="role-card-avatar" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -1351,7 +1352,7 @@
           </div>
         </div>
 
-        <div class="role-card" id="roleCard-lead" onclick="selectRoleFromCard('lead')" role="radio" aria-checked="false" tabindex="0" aria-label="Marcus: team lead (click to select)">
+        <div class="role-card" id="roleCard-lead" onclick="selectRoleFromCard('lead')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectRoleFromCard('lead');}" role="radio" aria-checked="false" tabindex="0" aria-label="Marcus: team lead (click to select)">
           <div class="role-card-avatar" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -1366,7 +1367,7 @@
           </div>
         </div>
 
-        <div class="role-card" id="roleCard-successor" onclick="selectRoleFromCard('successor')" role="radio" aria-checked="false" tabindex="0" aria-label="Amina: new joiner (click to select)">
+        <div class="role-card" id="roleCard-successor" onclick="selectRoleFromCard('successor')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectRoleFromCard('successor');}" role="radio" aria-checked="false" tabindex="0" aria-label="Amina: new joiner (click to select)">
           <div class="role-card-avatar" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
@@ -1815,7 +1816,7 @@
 
     if (!hasLoadedData) {
       s1.classList.add('is-current');
-      hint.innerHTML = '<strong>Next step:</strong> Click "Load demo project" to assemble the handover from project activity.';
+      hint.innerHTML = '<strong>Next step:</strong> Click "Start guided demo" to assemble the handover from project activity.';
       return;
     }
 
@@ -1987,18 +1988,18 @@
 
       if (btn) {
         btn.disabled = false;
-        btn.innerText = "or load demo project directly";
+        btn.innerText = "Load demo project directly";
       }
 
       const paper = document.getElementById('handoverPaper');
-      if (paper && tourCurrentStep === 0) {
+      if (paper && coachStep === 0) {
         window.scrollTo({ top: paper.offsetTop - 70, behavior: 'smooth' });
       }
     } catch (err) {
       console.error("loadDemoData failed:", err);
       if (btn) {
         btn.disabled = false;
-        btn.innerText = "or load demo project directly";
+        btn.innerText = "Load demo project directly";
       }
       throw err;
     }
@@ -2289,7 +2290,11 @@
     const res = await fetch('/api/audit/verify', { headers: getHeaders() });
     const data = await res.json();
     auditChainValidation = data;
-    renderAuditChainVisual(auditChainRecords, auditChainValidation);
+    if (auditChainRecords.length === 0) {
+      await loadAuditLog();
+    } else {
+      renderAuditChainVisual(auditChainRecords, auditChainValidation);
+    }
 
     if (data.valid) {
       alertBox.innerHTML = `
@@ -2306,18 +2311,18 @@
     }
   }
 
-  async function simulateTamper() {
+  async function simulateTamper(silent = false) {
     const res = await fetch('/api/audit/simulate_tamper', { method: 'POST', headers: getHeaders() });
     const data = await res.json();
-    alert(data.message);
+    if (!silent) alert(data.message);
     await loadAuditLog();
     await verifyAuditChain();
   }
 
-  async function restoreTamper() {
+  async function restoreTamper(silent = false) {
     const res = await fetch('/api/audit/restore', { method: 'POST', headers: getHeaders() });
     const data = await res.json();
-    alert(data.message);
+    if (!silent) alert(data.message);
     await loadAuditLog();
     await verifyAuditChain();
   }
@@ -2559,6 +2564,7 @@
       } else if (coachStep === 6) {
         // Step 6: Audit log
         switchTab('auditPanel');
+        await loadAuditLog();
         await verifyAuditChain();
 
         coachStep = 7;
