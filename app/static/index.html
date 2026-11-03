@@ -1243,6 +1243,98 @@
   }
   .signoff-req-note strong { color: var(--ink); }
 
+
+  /* What you'll get preview section */
+  .what-you-get-wrap {
+    background: #fafaf8;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 640px) {
+    .what-you-get-wrap { padding: 14px 12px; }
+  }
+  .what-you-get-header {
+    margin-bottom: 12px;
+  }
+  .example-card-container {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .example-tag-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .example-pill-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: var(--paper-subtle);
+    border: 1px solid var(--border-strong);
+    color: var(--ink-muted);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .example-type-label {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-weight: 600;
+  }
+  .example-claim-headline {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .example-claim-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .example-pills-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .example-caption-line {
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-style: italic;
+    border-top: 1px solid var(--border);
+    padding-top: 6px;
+  }
+  .security-guarantees-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .guarantee-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--ink-muted);
+  }
+  .guarantee-icon {
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .demo-muted-hint {
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
 </style>
 </head>
 <body>
@@ -1383,13 +1475,65 @@
         </div>
       </div>
 
-      <div class="hero-controls">
+      <div class="hero-controls" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         <button id="btnStartGuided" class="btn-main" onclick="startNarratedTour()">
           Start guided demo
         </button>
         <button id="btnLoadDemo" class="btn-link-subtle" onclick="loadDemoData()">
           Load demo project directly
         </button>
+        <span class="demo-muted-hint">
+          Guided demo: about 30 seconds, no sign-in needed.
+        </span>
+      </div>
+    </div>
+
+    <!-- WHAT YOU'LL GET (Static example preview shown only before data is loaded) -->
+    <div id="whatYouGetSection" class="what-you-get-wrap">
+      <div class="what-you-get-header">
+        <h2 class="serif-font" style="font-size: 18px; color: var(--ink);">What you'll get</h2>
+      </div>
+
+      <div class="example-card-container">
+        <div class="example-tag-row">
+          <span class="example-pill-tag">Example</span>
+          <span class="example-type-label">Type: Decision</span>
+        </div>
+
+        <div class="example-claim-body">
+          <div class="example-claim-headline">
+            <span class="example-claim-title">Use Memcached for the session cache.</span>
+            <span class="status-pill superseded" style="font-size: 10px;">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a5 5 0 019-3M13 8a5 5 0 01-9 3"/><path d="M12 2l3 3-3 3M4 14l-3-3 3-3"/></svg>
+              Chat idea superseded by code
+            </span>
+          </div>
+
+          <div class="example-pills-row">
+            <span class="cite-pill" style="opacity: 0.85; text-decoration: line-through;"><del>Chat, 12 May: Redis</del></span>
+            <span class="cite-pill" style="font-weight: 600; border-color: var(--ink-muted);">Commit, 20 May: Memcached</span>
+          </div>
+
+          <div class="example-caption-line">
+            Every claim in the real handover links to its source like this.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Small One-Line Security/Privacy Items with Icons -->
+      <div class="security-guarantees-list">
+        <div class="guarantee-item">
+          <svg class="guarantee-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span>Secrets are removed before anything is stored.</span>
+        </div>
+        <div class="guarantee-item">
+          <svg class="guarantee-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><line x1="4" y1="4" x2="20" y2="20"/></svg>
+          <span>Private channels are never read.</span>
+        </div>
+        <div class="guarantee-item">
+          <svg class="guarantee-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
+          <span>Nothing reaches the new joiner until the lead signs off.</span>
+        </div>
       </div>
     </div>
 
@@ -1869,6 +2013,7 @@
     if (data.artifacts_count > 0 || data.claims_count > 0) {
       hasLoadedData = true;
       document.getElementById('firstRunHero').style.display = 'none';
+      const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'none';
       document.getElementById('mainDocNav').style.display = 'flex';
       document.getElementById('reviewPanel').style.display = 'block';
       document.getElementById('manualRedactBar').style.display = 'flex';
@@ -1878,6 +2023,7 @@
     } else {
       hasLoadedData = false;
       document.getElementById('firstRunHero').style.display = 'block';
+      const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'block';
       document.getElementById('mainDocNav').style.display = 'none';
       document.getElementById('reviewPanel').style.display = 'none';
       document.getElementById('manualRedactBar').style.display = 'none';
@@ -1976,6 +2122,7 @@
 
       hasLoadedData = true;
       document.getElementById('firstRunHero').style.display = 'none';
+      const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'none';
       document.getElementById('mainDocNav').style.display = 'flex';
       document.getElementById('reviewPanel').style.display = 'block';
       document.getElementById('manualRedactBar').style.display = 'flex';
