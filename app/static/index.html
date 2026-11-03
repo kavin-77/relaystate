@@ -1335,6 +1335,77 @@
     color: var(--ink-faint);
   }
 
+
+  /* Change history event rows */
+  .change-history-container {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .change-event-row {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    transition: background 0.15s ease;
+  }
+  .change-event-row:hover {
+    background: var(--paper-subtle);
+  }
+  .change-event-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .change-event-main {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .change-event-actor {
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .change-event-sentence {
+    color: var(--ink);
+  }
+  .change-event-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--ink-faint);
+    flex-wrap: wrap;
+  }
+  .change-event-hash {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    background: var(--paper-subtle);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .change-event-diff {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: var(--paper-subtle);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    line-height: 1.4;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
 </style>
 </head>
 <body>
@@ -1548,7 +1619,7 @@
         <span class="tab-sub">Successor Navigator</span>
       </button>
       <button class="nav-tab-btn" onclick="switchTab('auditPanel')">
-        Activity log (tamper-proof)
+        Change history
         <span class="tab-sub">Proof that nobody edited the record afterwards</span>
       </button>
       <button class="nav-tab-btn" onclick="switchTab('sourcesPanel')">
@@ -1625,12 +1696,12 @@
       </div>
     </div>
 
-    <!-- TAB 3: ACTIVITY LOG (TAMPER-PROOF) -->
+    <!-- TAB 3: CHANGE HISTORY (TAMPER-PROOF AUDIT TRAIL) -->
     <div id="auditPanel" class="tab-panel">
       <div class="handover-paper">
         <div class="doc-header">
           <div>
-            <div class="doc-title">Activity Log (Tamper-Proof)</div>
+            <div class="doc-title">Change history</div>
             <div class="doc-meta">Proof that nobody edited the record afterwards &bull; Sequential SHA-256 hash chaining logs every review, sign-off, and edit.</div>
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
@@ -1645,22 +1716,11 @@
 
         <div id="auditStatusAlert" style="margin-bottom: 12px;"></div>
 
-        <div class="table-scroll">
-          <table class="editorial-table" id="auditTable">
-            <thead>
-              <tr>
-                <th style="width: 50px;">#</th>
-                <th style="width: 130px;">Time</th>
-                <th style="width: 140px;">Action</th>
-                <th style="width: 120px;">Actor</th>
-                <th>Change Details</th>
-                <th style="width: 110px;">Hash</th>
-              </tr>
-            </thead>
-            <tbody id="auditTableBody">
-              <tr><td colspan="6" style="text-align: center; color: var(--ink-muted); padding: 20px;">No audit records found.</td></tr>
-            </tbody>
-          </table>
+        <!-- CHANGE HISTORY LIST (Newest First, Plain Language, Details Toggle) -->
+        <div id="changeHistoryList" class="change-history-container">
+          <div style="text-align: center; color: var(--ink-muted); padding: 24px; font-size: 13px;">
+            No changes yet. Start the guided demo.
+          </div>
         </div>
       </div>
     </div>
@@ -2408,28 +2468,125 @@
     await loadSuccessorView();
   }
 
+
+  function formatAuditActor(actorStr) {
+    if (!actorStr) return 'System';
+    if (actorStr.includes('leaver') || actorStr.includes('Dave')) return 'Dave';
+    if (actorStr.includes('lead') || actorStr.includes('Marcus')) return 'Marcus';
+    if (actorStr.includes('successor') || actorStr.includes('Amina')) return 'Amina';
+    return actorStr.replace(/^role:/, '');
+  }
+
+  function formatAuditSentence(rec, diff) {
+    const action = rec.action || '';
+    if (action === 'INGEST_CORPUS') {
+      return 'loaded Project Hyperion activity';
+    }
+    if (action === 'EXTRACT_CLAIMS') {
+      const count = diff.claims_extracted || 9;
+      return `reconstructed ${count} verified claims`;
+    }
+    if (action === 'MANUAL_REDACTION') {
+      if (diff.target_string) return `redacted '${diff.target_string}'`;
+      return "applied manual redaction";
+    }
+    if (action.startsWith('CLAIM_REVIEW')) {
+      if (diff.approved) return 'approved claim';
+      if (diff.rejected) return 'rejected claim';
+      if (diff.new_summary) return 'edited claim summary';
+      return 'reviewed claim';
+    }
+    if (action === 'LEAVER_SIGNOFF') {
+      const from = diff.version_from || 'v0.1';
+      const to = diff.version_to || 'v0.2';
+      return `signed off, ${from} to ${to}`;
+    }
+    if (action === 'LEAD_APPROVAL') {
+      return 'signed off, published v1.0';
+    }
+    if (action === 'SUCCESSOR_ACKNOWLEDGE') {
+      return 'acknowledged receipt';
+    }
+    if (action === 'TAMPER_SIMULATION') {
+      return 'simulated ledger tampering';
+    }
+    if (action === 'TAMPER_RESTORE') {
+      return 'restored authentic ledger';
+    }
+    // Safe fallback: shows raw action name
+    return action;
+  }
+
+  function formatAuditDiffText(diffStr) {
+    const rawSecretRegex = /AKIA[0-9A-Z]{16}|sk_test_[0-9a-zA-Z]{24}|\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b|\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/;
+    if (rawSecretRegex.test(diffStr)) {
+      return "details hidden";
+    }
+    try {
+      const parsed = JSON.parse(diffStr);
+      const lines = [];
+      for (const [k, v] of Object.entries(parsed)) {
+        lines.push(`${k}: ${JSON.stringify(v)}`);
+      }
+      return lines.join('\n');
+    } catch (e) {
+      return diffStr;
+    }
+  }
+
+  function toggleEventDiff(seq) {
+    const box = document.getElementById(`diff-box-${seq}`);
+    if (box) {
+      box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+    }
+  }
+
   async function loadAuditLog() {
     const res = await fetch('/api/audit/log', { headers: getHeaders() });
     const data = await res.json();
     auditChainRecords = data.records || [];
     renderAuditChainVisual(auditChainRecords, auditChainValidation);
 
-    const tbody = document.getElementById('auditTableBody');
+    const container = document.getElementById('changeHistoryList');
+    if (!container) return;
+
     if (!data.records || data.records.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--ink-muted); padding: 20px;">No audit records found.</td></tr>';
+      container.innerHTML = '<div style="text-align: center; color: var(--ink-muted); padding: 24px; font-size: 13px;">No changes yet. Start the guided demo.</div>';
       return;
     }
 
-    tbody.innerHTML = data.records.map(r => `
-      <tr>
-        <td style="font-family: 'JetBrains Mono', monospace;">${r.seq}</td>
-        <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${r.timestamp.substring(11, 19)}</td>
-        <td><code>${r.action}</code></td>
-        <td>${r.actor}</td>
-        <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-muted);">${r.payload_diff}</td>
-        <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">${r.curr_hash.substring(0, 10)}&hellip;</td>
-      </tr>
-    `).join('');
+    // Show newest first
+    const sorted = [...data.records].reverse();
+
+    container.innerHTML = sorted.map(r => {
+      let diffObj = {};
+      try { diffObj = JSON.parse(r.payload_diff || '{}'); } catch (e) {}
+
+      const actor = formatAuditActor(r.actor);
+      const sentence = formatAuditSentence(r, diffObj);
+      const d = new Date(r.timestamp);
+      const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const versionTag = diffObj.version_to ? `<span class="version-tag">${diffObj.version_to}</span>` : (diffObj.acknowledged_version ? `<span class="version-tag">${diffObj.acknowledged_version}</span>` : '');
+      const diffText = formatAuditDiffText(r.payload_diff || '{}');
+
+      return `
+        <div class="change-event-row" id="event-row-${r.seq}">
+          <div class="change-event-top">
+            <div class="change-event-main">
+              <span class="change-event-actor">${actor}</span>
+              <span class="change-event-sentence">${sentence}</span>
+              ${versionTag}
+            </div>
+            <div class="change-event-meta">
+              <span class="change-event-time">${timeStr}</span>
+              <span class="change-event-hash" title="Hash: ${r.curr_hash}">#${r.seq} &bull; ${r.curr_hash.substring(0, 6)}</span>
+              <button class="btn-action-small" onclick="toggleEventDiff(${r.seq})">Details</button>
+            </div>
+          </div>
+          <div class="change-event-diff" id="diff-box-${r.seq}" style="display: none;">${diffText}</div>
+        </div>
+      `;
+    }).join('');
   }
 
   async function verifyAuditChain() {
