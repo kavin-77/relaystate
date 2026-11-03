@@ -1330,9 +1330,77 @@
     color: var(--ink);
     flex-shrink: 0;
   }
-  .demo-muted-hint {
+  /* Slim dismissible new-user accent banner */
+  .new-user-banner {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin-bottom: 10px;
     font-size: 12px;
-    color: var(--ink-faint);
+    line-height: 1.35;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .new-user-banner-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .new-user-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .btn-banner-start {
+    background: var(--ink);
+    color: #ffffff;
+    border: none;
+    border-radius: 3px;
+    padding: 2.5px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 1.2;
+    transition: opacity 0.15s ease;
+  }
+  .btn-banner-start:hover {
+    opacity: 0.85;
+  }
+  .btn-banner-dismiss {
+    background: none;
+    border: none;
+    font-size: 15px;
+    line-height: 1;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-banner-dismiss:hover {
+    color: var(--ink);
+  }
+
+  @media (max-width: 500px) {
+    .new-user-banner {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding: 5px 8px;
+      gap: 3px 6px;
+      font-size: 11px;
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+    .new-user-banner-actions {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: center;
+    }
   }
 
 
@@ -1447,6 +1515,15 @@
 
   <div class="page-container">
 
+    <!-- SLIM NEW-USER ACCENT BANNER (Above Demo Mode notice) -->
+    <div id="newUserBanner" class="new-user-banner" role="region" aria-label="Quick start guide">
+      <span class="new-user-banner-text">New here? Click Start guided demo. It takes about 30 seconds and needs no sign-in.</span>
+      <div class="new-user-banner-actions">
+        <button type="button" class="btn-banner-start" onclick="startNarratedTour()">Start</button>
+        <button type="button" class="btn-banner-dismiss" onclick="dismissNewUserBanner()" aria-label="Dismiss banner">&times;</button>
+      </div>
+    </div>
+
     <!-- SHORT DISMISSIBLE NOTICE -->
     <div id="infoBanner" class="notice-banner">
       <span><strong>Demo Mode:</strong> All data is synthetic (no real secrets or personal data). Roles are selectable from the menu to test the workflow without sign-in; access rules are enforced by the server.</span>
@@ -1553,9 +1630,6 @@
         <button id="btnLoadDemo" class="btn-link-subtle" onclick="loadDemoData()">
           Load demo project directly
         </button>
-        <span class="demo-muted-hint">
-          Guided demo: about 30 seconds, no sign-in needed.
-        </span>
       </div>
     </div>
 
@@ -1971,9 +2045,46 @@
     };
   }
 
+  const BANNER_STORAGE_KEY = 'relaystate_banner_dismissed';
+
+  function isBannerDismissed() {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return localStorage.getItem(BANNER_STORAGE_KEY) === 'true';
+      }
+    } catch (e) {
+      // storage unavailable, never throw
+    }
+    return false;
+  }
+
+  function dismissNewUserBanner() {
+    const el = document.getElementById('newUserBanner');
+    if (el) el.style.display = 'none';
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(BANNER_STORAGE_KEY, 'true');
+      }
+    } catch (e) {
+      // storage unavailable, never throw
+    }
+  }
+
+  function initNewUserBanner() {
+    const nub = document.getElementById('newUserBanner');
+    if (nub && isBannerDismissed()) {
+      nub.style.display = 'none';
+    }
+  }
+
   async function resetWorkspace() {
     if (confirm("Reset current handover document to fresh state?")) {
       await fetch('/api/workspace/reset', { method: 'POST', headers: getHeaders() });
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.removeItem(BANNER_STORAGE_KEY);
+        }
+      } catch (e) {}
       location.reload();
     }
   }
@@ -2074,6 +2185,7 @@
       hasLoadedData = true;
       document.getElementById('firstRunHero').style.display = 'none';
       const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'none';
+      const nub = document.getElementById('newUserBanner'); if (nub) nub.style.display = 'none';
       document.getElementById('mainDocNav').style.display = 'flex';
       document.getElementById('reviewPanel').style.display = 'block';
       document.getElementById('manualRedactBar').style.display = 'flex';
@@ -2084,6 +2196,8 @@
       hasLoadedData = false;
       document.getElementById('firstRunHero').style.display = 'block';
       const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'block';
+      const nub = document.getElementById('newUserBanner');
+      if (nub) nub.style.display = isBannerDismissed() ? 'none' : '';
       document.getElementById('mainDocNav').style.display = 'none';
       document.getElementById('reviewPanel').style.display = 'none';
       document.getElementById('manualRedactBar').style.display = 'none';
@@ -2183,6 +2297,7 @@
       hasLoadedData = true;
       document.getElementById('firstRunHero').style.display = 'none';
       const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'none';
+      const nub = document.getElementById('newUserBanner'); if (nub) nub.style.display = 'none';
       document.getElementById('mainDocNav').style.display = 'flex';
       document.getElementById('reviewPanel').style.display = 'block';
       document.getElementById('manualRedactBar').style.display = 'flex';
@@ -2732,6 +2847,9 @@
   let coachStep = 0;
 
   async function startNarratedTour() {
+    const nub = document.getElementById('newUserBanner');
+    if (nub) nub.style.display = 'none';
+
     const bar = document.getElementById('coachBar');
     bar.style.display = 'block';
     const text = document.getElementById('coachText');
@@ -2897,6 +3015,7 @@
   }
 
   window.onload = () => {
+    initNewUserBanner();
     startWakingCheck();
     loadWorkspaceState();
   };
