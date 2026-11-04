@@ -377,7 +377,7 @@ html_content = """<!DOCTYPE html>
       <div class="section">
         <div class="section-header">
           <span class="section-num">01</span>
-          <h2>Multi-Modal Grounding & Zero-Hallucination Architecture</h2>
+          <h2>Multi-Modal Grounding & Evidence-Grounded Architecture</h2>
           <span class="section-tag">Grounding Foundation</span>
         </div>
         <p>
@@ -665,7 +665,7 @@ html_content = """<!DOCTYPE html>
             <tr>
               <td><code>Headless Chrome CDP</code></td>
               <td>Responsive layout verified at 360px mobile width (0 horizontal scroll, stepper under 60px).</td>
-              <td><strong style="color: #166534;">PASSED</strong></td>
+              <td><strong style="color: #475569; font-size: 7pt;">Manual &mdash; verified at 360px in browser</strong></td>
             </tr>
           </tbody>
         </table>
