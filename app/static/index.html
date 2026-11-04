@@ -1374,76 +1374,119 @@
     color: var(--ink);
     flex-shrink: 0;
   }
-  /* Slim dismissible new-user accent banner */
-  .new-user-banner {
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    padding: 6px 10px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    line-height: 1.35;
-    color: #1e293b;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+  /* Non-blocking Quick Start Popup Card (slide-in) */
+  .quick-start-popup {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    background: var(--paper);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    z-index: 990;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    pointer-events: auto;
   }
-  .new-user-banner-text {
-    flex: 1;
-    min-width: 0;
+  .quick-start-popup.is-visible {
+    opacity: 1;
+    transform: translateY(0);
   }
-  .new-user-banner-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-  .btn-banner-start {
-    background: var(--ink);
-    color: #ffffff;
-    border: none;
-    border-radius: 3px;
-    padding: 2.5px 8px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    line-height: 1.2;
-    transition: opacity 0.15s ease;
-  }
-  .btn-banner-start:hover {
-    opacity: 0.85;
-  }
-  .btn-banner-dismiss {
+  .popup-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
     background: none;
     border: none;
-    font-size: 15px;
+    font-size: 18px;
     line-height: 1;
-    color: #64748b;
+    color: var(--ink-faint);
     cursor: pointer;
-    padding: 0 3px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.15s ease;
   }
-  .btn-banner-dismiss:hover {
+  .popup-close-btn:hover {
     color: var(--ink);
   }
+  .popup-text {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--ink);
+    margin: 0 0 14px 0;
+    padding-right: 18px;
+  }
+  .popup-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-popup-start {
+    background: var(--ink);
+    color: #ffffff;
+    border: 1px solid var(--ink);
+    border-radius: 5px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .btn-popup-start:hover {
+    opacity: 0.9;
+  }
+  .btn-popup-dismiss {
+    background: transparent;
+    color: var(--ink-muted);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 7px 12px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .btn-popup-dismiss:hover {
+    background: var(--paper-subtle);
+    color: var(--ink);
+  }
+  .quick-start-popup button:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+  }
 
-  @media (max-width: 500px) {
-    .new-user-banner {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      padding: 5px 8px;
-      gap: 3px 6px;
-      font-size: 11px;
-      line-height: 1.3;
-      margin-bottom: 8px;
+  @media (max-width: 600px) {
+    .quick-start-popup {
+      bottom: 16px;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%) translateY(20px);
     }
-    .new-user-banner-actions {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-      align-self: center;
+    .quick-start-popup.is-visible {
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quick-start-popup {
+      transition: none !important;
+      transform: none !important;
+    }
+    .quick-start-popup.is-visible {
+      transform: none !important;
+    }
+    @media (max-width: 600px) {
+      .quick-start-popup {
+        transform: translateX(-50%) !important;
+      }
+      .quick-start-popup.is-visible {
+        transform: translateX(-50%) !important;
+      }
     }
   }
 
@@ -1559,15 +1602,6 @@
 
   <div class="page-container">
 
-    <!-- SLIM NEW-USER ACCENT BANNER (Above Demo Mode notice) -->
-    <div id="newUserBanner" class="new-user-banner" role="region" aria-label="Quick start guide">
-      <span class="new-user-banner-text">New here? Click Start guided demo. It takes about 30 seconds and needs no sign-in.</span>
-      <div class="new-user-banner-actions">
-        <button type="button" class="btn-banner-start" onclick="startNarratedTour()">Start</button>
-        <button type="button" class="btn-banner-dismiss" onclick="dismissNewUserBanner()" aria-label="Dismiss banner">&times;</button>
-      </div>
-    </div>
-
     <!-- SHORT DISMISSIBLE NOTICE -->
     <div id="infoBanner" class="notice-banner">
       <span><strong>Demo Mode:</strong> All data is synthetic (no real secrets or personal data). Roles are selectable from the menu to test the workflow without sign-in; access rules are enforced by the server.</span>
@@ -1615,6 +1649,18 @@
       </div>
       <div id="stepperHint" class="stepper-hint">
         <strong>Next step:</strong> Click "Start guided demo" to assemble the handover from project activity.
+      </div>
+    </div>
+
+    <!-- NON-BLOCKING QUICK START POPUP CARD -->
+    <div id="quickStartPopup" class="quick-start-popup" role="dialog" aria-label="Guided demo invitation" style="display: none;">
+      <button type="button" class="popup-close-btn" onclick="dismissQuickStartPopup()" aria-label="Close invitation">&times;</button>
+      <div class="popup-content">
+        <p class="popup-text">New here? Try the guided demo. About 30 seconds, no sign-in needed.</p>
+      </div>
+      <div class="popup-actions">
+        <button type="button" class="btn-popup-start" onclick="startGuidedDemoFromPopup()">Start demo</button>
+        <button type="button" class="btn-popup-dismiss" onclick="dismissQuickStartPopup()">Not now</button>
       </div>
     </div>
 
@@ -2088,6 +2134,9 @@
 
 
   function getWorkspaceId() {
+    const urlParams = (typeof window !== 'undefined' && window.location) ? new URLSearchParams(window.location.search) : null;
+    const paramWs = urlParams ? urlParams.get('ws') : null;
+    if (paramWs) return paramWs;
     let ws = localStorage.getItem('relaystate_ws_id');
     if (!ws) {
       ws = 'ws-' + Math.random().toString(36).substring(2, 10);
@@ -2104,44 +2153,72 @@
     };
   }
 
-  const BANNER_STORAGE_KEY = 'relaystate_banner_dismissed';
+  const POPUP_STORAGE_KEY = 'relaystate_popup_dismissed';
+  let quickStartTimer = null;
 
-  function isBannerDismissed() {
+  function isPopupDismissed() {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        return localStorage.getItem(BANNER_STORAGE_KEY) === 'true';
+        return localStorage.getItem(POPUP_STORAGE_KEY) === 'true';
       }
     } catch (e) {
-      // storage unavailable, never throw
+      // storage unavailable or restricted (e.g. private mode)
     }
     return false;
   }
 
-  function dismissNewUserBanner() {
-    const el = document.getElementById('newUserBanner');
-    if (el) el.style.display = 'none';
+  function dismissQuickStartPopup() {
+    clearTimeout(quickStartTimer);
+    const popup = document.getElementById('quickStartPopup');
+    if (popup) {
+      popup.classList.remove('is-visible');
+      setTimeout(() => { popup.style.display = 'none'; }, 300);
+    }
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem(BANNER_STORAGE_KEY, 'true');
+        localStorage.setItem(POPUP_STORAGE_KEY, 'true');
       }
     } catch (e) {
-      // storage unavailable, never throw
+      // storage unavailable, never break page
     }
   }
 
-  function initNewUserBanner() {
-    const nub = document.getElementById('newUserBanner');
-    if (nub && isBannerDismissed()) {
-      nub.style.display = 'none';
-    }
+  function startGuidedDemoFromPopup() {
+    dismissQuickStartPopup();
+    startNarratedTour();
   }
+
+  function scheduleQuickStartPopup() {
+    if (isPopupDismissed() || hasLoadedData) {
+      return;
+    }
+    quickStartTimer = setTimeout(() => {
+      if (isPopupDismissed() || hasLoadedData) return;
+      const popup = document.getElementById('quickStartPopup');
+      if (popup) {
+        popup.style.display = 'block';
+        popup.offsetHeight; // trigger reflow for slide transition
+        popup.classList.add('is-visible');
+      }
+    }, 1500);
+  }
+
+  // Escape key dismisses the popup if open
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const popup = document.getElementById('quickStartPopup');
+      if (popup && popup.style.display !== 'none' && popup.classList.contains('is-visible')) {
+        dismissQuickStartPopup();
+      }
+    }
+  });
 
   async function resetWorkspace() {
     if (confirm("Reset current handover document to fresh state?")) {
       await fetch('/api/workspace/reset', { method: 'POST', headers: getHeaders() });
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.removeItem(BANNER_STORAGE_KEY);
+          localStorage.removeItem(POPUP_STORAGE_KEY);
         }
       } catch (e) {}
       location.reload();
@@ -2322,9 +2399,11 @@
 
     if (data.artifacts_count > 0 || data.claims_count > 0) {
       hasLoadedData = true;
+      clearTimeout(quickStartTimer);
+      const popup = document.getElementById('quickStartPopup');
+      if (popup) popup.style.display = 'none';
       document.getElementById('firstRunHero').style.display = 'none';
       const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'none';
-      const nub = document.getElementById('newUserBanner'); if (nub) nub.style.display = 'none';
       document.getElementById('mainDocNav').style.display = 'flex';
       document.getElementById('reviewPanel').style.display = 'block';
       document.getElementById('manualRedactBar').style.display = 'flex';
@@ -2335,8 +2414,6 @@
       hasLoadedData = false;
       document.getElementById('firstRunHero').style.display = 'block';
       const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'block';
-      const nub = document.getElementById('newUserBanner');
-      if (nub) nub.style.display = isBannerDismissed() ? 'none' : '';
       document.getElementById('mainDocNav').style.display = 'none';
       document.getElementById('reviewPanel').style.display = 'none';
       document.getElementById('manualRedactBar').style.display = 'none';
@@ -2434,9 +2511,11 @@
       }
 
       hasLoadedData = true;
+      clearTimeout(quickStartTimer);
+      const popup = document.getElementById('quickStartPopup');
+      if (popup) popup.style.display = 'none';
       document.getElementById('firstRunHero').style.display = 'none';
       const wyg = document.getElementById('whatYouGetSection'); if (wyg) wyg.style.display = 'none';
-      const nub = document.getElementById('newUserBanner'); if (nub) nub.style.display = 'none';
       document.getElementById('mainDocNav').style.display = 'flex';
       document.getElementById('reviewPanel').style.display = 'block';
       document.getElementById('manualRedactBar').style.display = 'flex';
@@ -2986,8 +3065,9 @@
   let coachStep = 0;
 
   async function startNarratedTour() {
-    const nub = document.getElementById('newUserBanner');
-    if (nub) nub.style.display = 'none';
+    clearTimeout(quickStartTimer);
+    const popup = document.getElementById('quickStartPopup');
+    if (popup) popup.style.display = 'none';
 
     const bar = document.getElementById('coachBar');
     bar.style.display = 'block';
@@ -3154,7 +3234,7 @@
   }
 
   window.onload = () => {
-    initNewUserBanner();
+    scheduleQuickStartPopup();
     startWakingCheck();
     loadWorkspaceState();
   };
