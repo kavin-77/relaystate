@@ -2133,14 +2133,32 @@
   }
 
 
-  function getWorkspaceId() {
+  function getRawWorkspaceId() {
+    if (typeof window !== 'undefined' && window.workspaceId) return window.workspaceId;
     const urlParams = (typeof window !== 'undefined' && window.location) ? new URLSearchParams(window.location.search) : null;
     const paramWs = urlParams ? urlParams.get('ws') : null;
     if (paramWs) return paramWs;
-    let ws = localStorage.getItem('relaystate_ws_id');
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const stored = localStorage.getItem('relaystate_ws_id');
+        if (stored) return stored;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function getWorkspaceId() {
+    let ws = getRawWorkspaceId();
     if (!ws) {
       ws = 'ws-' + Math.random().toString(36).substring(2, 10);
-      localStorage.setItem('relaystate_ws_id', ws);
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          localStorage.setItem('relaystate_ws_id', ws);
+        }
+      } catch (e) {}
+    }
+    if (typeof window !== 'undefined') {
+      window.workspaceId = ws;
     }
     return ws;
   }
@@ -2153,13 +2171,19 @@
     };
   }
 
-  const POPUP_STORAGE_KEY = 'relaystate_popup_dismissed';
   let quickStartTimer = null;
+  let pageLoadTimestamp = 0;
 
-  function isPopupDismissed() {
+  function getPopupStorageKey(wsId) {
+    const ws = wsId || getWorkspaceId();
+    return "rs_popup_dismissed_" + ws;
+  }
+
+  function isPopupDismissed(wsId) {
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        return localStorage.getItem(POPUP_STORAGE_KEY) === 'true';
+        const key = getPopupStorageKey(wsId);
+        return localStorage.getItem(key) === 'true';
       }
     } catch (e) {
       // storage unavailable or restricted (e.g. private mode)
@@ -2176,7 +2200,8 @@
     }
     try {
       if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem(POPUP_STORAGE_KEY, 'true');
+        const key = getPopupStorageKey();
+        localStorage.setItem(key, 'true');
       }
     } catch (e) {
       // storage unavailable, never break page
@@ -2188,19 +2213,34 @@
     startNarratedTour();
   }
 
-  function scheduleQuickStartPopup() {
-    if (isPopupDismissed() || hasLoadedData) {
+  function scheduleQuickStartPopup(isRetry = false) {
+    let ws = getRawWorkspaceId();
+    if (!ws && !isRetry) {
+      // If workspaceId is not set yet when the page loads, wait 500ms and check again (retry once)
+      setTimeout(() => {
+        scheduleQuickStartPopup(true);
+      }, 500);
       return;
     }
+
+    const effectiveWs = ws || getWorkspaceId();
+    if (isPopupDismissed(effectiveWs) || hasLoadedData) {
+      return;
+    }
+
+    clearTimeout(quickStartTimer);
+    const elapsed = pageLoadTimestamp > 0 ? (Date.now() - pageLoadTimestamp) : 0;
+    const delay = Math.max(0, 2000 - elapsed);
     quickStartTimer = setTimeout(() => {
-      if (isPopupDismissed() || hasLoadedData) return;
+      const currentWs = getWorkspaceId();
+      if (isPopupDismissed(currentWs) || hasLoadedData) return;
       const popup = document.getElementById('quickStartPopup');
       if (popup) {
         popup.style.display = 'block';
         popup.offsetHeight; // trigger reflow for slide transition
         popup.classList.add('is-visible');
       }
-    }, 1500);
+    }, delay);
   }
 
   // Escape key dismisses the popup if open
@@ -2218,7 +2258,11 @@
       await fetch('/api/workspace/reset', { method: 'POST', headers: getHeaders() });
       try {
         if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.removeItem(POPUP_STORAGE_KEY);
+          const ws = getWorkspaceId();
+          if (ws) {
+            localStorage.removeItem("rs_popup_dismissed_" + ws);
+          }
+          localStorage.removeItem('relaystate_popup_dismissed');
         }
       } catch (e) {}
       location.reload();
@@ -3233,11 +3277,12 @@
     startNarratedTour();
   }
 
-  window.onload = () => {
+  window.addEventListener('load', () => {
+    pageLoadTimestamp = Date.now();
     scheduleQuickStartPopup();
     startWakingCheck();
     loadWorkspaceState();
-  };
+  });
 </script>
 </body>
 </html>
